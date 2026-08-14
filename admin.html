@@ -113,7 +113,7 @@
         </div>
         <div class="field">
           <label for="ghRepo">Repositorio</label>
-          <input type="text" id="ghRepo" placeholder="anuar-nyse">
+          <input type="text" id="ghRepo" placeholder="AnuarNyse">
         </div>
         <div class="row2">
           <div class="field">
@@ -127,7 +127,7 @@
         </div>
         <div class="field">
           <label for="ghToken">Token de acceso</label>
-          <input type="password" id="ghToken" placeholder="ghp_...">
+          <input type="password" id="ghToken" placeholder="github_pat_...">
         </div>
 
         <div class="hint">
@@ -144,12 +144,13 @@
 
   <script>
 // ANUAR NYSE — shared render logic
+
 const BANKS = [
   { name: "Pichincha",     color: "#FFC72C" },
   { name: "Guayaquil",     color: "#E6007E" },
   { name: "Internacional", color: "#FFC72C" },
   { name: "Pacífico",      color: "#1565C0" },
-  { name: "Bolivariano",   color: "#2FB6A6" }
+  { name: "Bolivariano",   color: "#2FB6A6" },
 ];
 
 const MESES_ES = ["enero","febrero","marzo","abril","mayo","junio","julio",
@@ -186,6 +187,30 @@ function bankChip(x, y, bank){
 const ROW1_X = [-317, -77, 133];
 const ROW2_X = [-195, 35];
 
+function arFlagMini(x, y, r){
+  return '<g transform="translate(' + x + ',' + y + ')">' +
+    '<circle r="' + r + '" fill="#0a0908" stroke="url(#goldFoil)" stroke-width="2"/>' +
+    '<clipPath id="clipARmini"><circle r="' + (r-4) + '"/></clipPath>' +
+    '<g clip-path="url(#clipARmini)">' +
+    '<rect x="-' + r + '" y="-' + r + '" width="' + (r*2) + '" height="' + (r*2/3) + '" fill="#74ACDF"/>' +
+    '<rect x="-' + r + '" y="-' + (r/3) + '" width="' + (r*2) + '" height="' + (r*2/3) + '" fill="#FFFFFF"/>' +
+    '<rect x="-' + r + '" y="' + (r/3) + '" width="' + (r*2) + '" height="' + (r*2/3) + '" fill="#74ACDF"/>' +
+    '<circle r="' + (r*0.28) + '" fill="#F6B40E" stroke="#85340A" stroke-width="0.8"/>' +
+    '</g></g>';
+}
+
+function ecFlagMini(x, y, r){
+  return '<g transform="translate(' + x + ',' + y + ')">' +
+    '<circle r="' + r + '" fill="#0a0908" stroke="url(#goldFoil)" stroke-width="2"/>' +
+    '<clipPath id="clipECmini"><circle r="' + (r-4) + '"/></clipPath>' +
+    '<g clip-path="url(#clipECmini)">' +
+    '<rect x="-' + r + '" y="-' + r + '" width="' + (r*2) + '" height="' + r + '" fill="#FFD100"/>' +
+    '<rect x="-' + r + '" y="0" width="' + (r*2) + '" height="' + (r/2) + '" fill="#0F47AF"/>' +
+    '<rect x="-' + r + '" y="' + (r/2) + '" width="' + (r*2) + '" height="' + (r/2) + '" fill="#EF3340"/>' +
+    '<circle r="' + (r*0.3) + '" fill="#FFFFFF" stroke="#3A3A3A" stroke-width="0.6"/>' +
+    '</g></g>';
+}
+
 function buildSVG(state){
   const rateStr = formatARS(state.rate);
   const ventaNum = Math.round(parseInt(String(state.rate||'0').replace(/[^\d]/g,''),10) * 1.03);
@@ -199,6 +224,14 @@ function buildSVG(state){
 
   const row1 = ROW1_X.map(function(x,i){ return bankChip(x,0,BANKS[i]); }).join('');
   const row2 = ROW2_X.map(function(x,i){ return bankChip(x,0,BANKS[i+3]); }).join('');
+
+  const flagsLine = '<g transform="translate(540,540)">' +
+    '<text x="-262" y="9" text-anchor="end" font-family="Poppins" font-weight="500" font-size="30" fill="#F5F1E8">1 D\u00f3lar</text>' +
+    arFlagMini(-228,0,22) +
+    '<text x="0" y="9" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="30" fill="#8a7550">=</text>' +
+    '<text x="30" y="9" text-anchor="start" font-family="Poppins" font-weight="500" font-size="30" fill="#F5F1E8">1 D\u00f3lar</text>' +
+    ecFlagMini(228,0,22) +
+    '</g>';
 
   return '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">' +
   '<defs>' +
@@ -226,7 +259,7 @@ function buildSVG(state){
   '<line x1="610" y1="212" x2="670" y2="212" stroke="url(#goldLine)" stroke-width="1.5"/>' +
   '<line x1="140" y1="264" x2="940" y2="264" stroke="url(#goldLine)" stroke-width="1"/>' +
   '<text x="540" y="330" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="26" letter-spacing="2" fill="#C9A227">Cotización · ' + dateStr + '</text>' +
-  '<text x="540" y="376" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="28" letter-spacing="4" fill="#F5F1E8">DÓLAR ECUADOR</text>' +
+  '<text x="540" y="376" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="28" letter-spacing="4" fill="#F5F1E8">D\u00d3LAR ECUADOR</text>' +
   '<g transform="translate(540,470)">' +
     '<text x="-170" y="-54" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="17" letter-spacing="5" fill="#C9A227">COMPRA</text>' +
     '<text x="-170" y="6" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="64" fill="url(#goldFoil)">' + rateStr + '</text>' +
@@ -234,4 +267,191 @@ function buildSVG(state){
     '<text x="170" y="-54" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="17" letter-spacing="5" fill="#C9A227">VENTA</text>' +
     '<text x="170" y="6" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="64" fill="#F5F1E8">' + ventaStr + '</text>' +
   '</g>' +
-  '<text x="540" y="536" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="24" fill="#F5F1E8">1 Dólar 🇦🇷 = 1 Dólar 🇪🇨</text>' +
+  flagsLine +
+  comisionBlock +
+  '<g transform="translate(540,654)" stroke="#E8C468" stroke-width="1.5" fill="none" opacity="0.85">' +
+    '<rect x="-8" y="-8" width="16" height="16" transform="rotate(45)"/>' +
+    '<line x1="-140" y1="0" x2="-24" y2="0"/><line x1="24" y1="0" x2="140" y2="0"/>' +
+  '</g>' +
+  '<text x="540" y="700" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="26" fill="#F5F1E8">En Argentina trabajamos con todos los</text>' +
+  '<text x="540" y="734" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="26" fill="#F5F1E8">bancos y Billeteras Virtuales</text>' +
+  '<text x="540" y="776" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="22" letter-spacing="2" fill="#C9A227">Recibimos en Ecuador en los bancos</text>' +
+  '<g transform="translate(540,822)">' + row1 + '</g>' +
+  '<g transform="translate(540,870)">' + row2 + '</g>' +
+  '<line x1="240" y1="922" x2="840" y2="922" stroke="url(#goldLine)" stroke-width="1"/>' +
+  '<text x="540" y="962" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="21" letter-spacing="5" fill="#C9A227">SEGUI NUESTRAS COTIZACIONES DIARIAS</text>' +
+  '</svg>';
+}
+  </script>
+
+  <script>
+    const rateInput = document.getElementById('rate');
+    const noComisionInput = document.getElementById('noComision');
+    const stage = document.getElementById('stage');
+    const statusEl = document.getElementById('status');
+
+    const ghOwner = document.getElementById('ghOwner');
+    const ghRepo = document.getElementById('ghRepo');
+    const ghBranch = document.getElementById('ghBranch');
+    const ghPath = document.getElementById('ghPath');
+    const ghToken = document.getElementById('ghToken');
+    const publishBtn = document.getElementById('publishBtn');
+
+    function currentState(){
+      return { rate: rateInput.value, noComision: noComisionInput.checked };
+    }
+
+    function render(){
+      stage.innerHTML = buildSVG(currentState());
+    }
+
+    let saveTimer;
+    function scheduleSave(){
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(function(){
+        try{
+          localStorage.setItem('anuar-admin-state', JSON.stringify(currentState()));
+          localStorage.setItem('anuar-gh-config', JSON.stringify({
+            owner: ghOwner.value, repo: ghRepo.value, branch: ghBranch.value,
+            path: ghPath.value, token: ghToken.value
+          }));
+        }catch(e){}
+      }, 400);
+    }
+
+    function loadLocal(){
+      try{
+        const raw = localStorage.getItem('anuar-admin-state');
+        if(raw){
+          const s = JSON.parse(raw);
+          rateInput.value = s.rate || rateInput.value;
+          noComisionInput.checked = (s.noComision !== undefined) ? s.noComision : true;
+        }
+        const gh = localStorage.getItem('anuar-gh-config');
+        if(gh){
+          const c = JSON.parse(gh);
+          ghOwner.value = c.owner || '';
+          ghRepo.value = c.repo || '';
+          ghBranch.value = c.branch || 'main';
+          ghPath.value = c.path || 'data.json';
+          ghToken.value = c.token || '';
+        }
+      }catch(e){}
+    }
+
+    [rateInput, noComisionInput, ghOwner, ghRepo, ghBranch, ghPath, ghToken].forEach(function(el){
+      el.addEventListener('input', function(){ render(); scheduleSave(); });
+      el.addEventListener('change', function(){ render(); scheduleSave(); });
+    });
+
+    function setStatus(text, kind){
+      statusEl.textContent = text;
+      statusEl.className = 'status' + (kind ? ' '+kind : '');
+    }
+
+    function b64EncodeUnicode(str){
+      return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(_, p1){
+        return String.fromCharCode(parseInt(p1, 16));
+      }));
+    }
+
+    async function publishToGitHub(){
+      const owner = ghOwner.value.trim();
+      const repo = ghRepo.value.trim();
+      const branch = (ghBranch.value || 'main').trim();
+      const path = (ghPath.value || 'data.json').trim();
+      const token = ghToken.value.trim();
+
+      if(!owner || !repo || !token){
+        setStatus('Completá usuario, repositorio y token en "Configuración de GitHub".', 'err');
+        document.getElementById('ghDetails').open = true;
+        return;
+      }
+
+      publishBtn.disabled = true;
+      setStatus('Publicando…', 'busy');
+
+      const apiBase = 'https://api.github.com/repos/' + owner + '/' + repo + '/contents/' + path;
+      const headers = {
+        'Authorization': 'Bearer ' + token,
+        'Accept': 'application/vnd.github+json'
+      };
+
+      try{
+        let sha;
+        const getRes = await fetch(apiBase + '?ref=' + encodeURIComponent(branch), { headers: headers });
+        if(getRes.status === 200){
+          const info = await getRes.json();
+          sha = info.sha;
+        }else if(getRes.status !== 404){
+          const errBody = await getRes.json().catch(function(){ return {}; });
+          throw new Error(errBody.message || ('Error al leer el archivo (HTTP ' + getRes.status + ')'));
+        }
+
+        const data = currentState();
+        const content = JSON.stringify(data, null, 2);
+        const body = {
+          message: 'Cotización: $' + rateInput.value + ' — ' + new Date().toLocaleDateString('es-AR'),
+          content: b64EncodeUnicode(content),
+          branch: branch
+        };
+        if(sha) body.sha = sha;
+
+        const putHeaders = Object.assign({}, headers, {'Content-Type': 'application/json'});
+        const putRes = await fetch(apiBase, {
+          method: 'PUT',
+          headers: putHeaders,
+          body: JSON.stringify(body)
+        });
+
+        if(!putRes.ok){
+          const errBody = await putRes.json().catch(function(){ return {}; });
+          throw new Error(errBody.message || ('Error al publicar (HTTP ' + putRes.status + ')'));
+        }
+
+        setStatus('Publicado ✓ — la web ya se está actualizando', 'ok');
+      }catch(e){
+        setStatus('No se pudo publicar: ' + e.message, 'err');
+      }finally{
+        publishBtn.disabled = false;
+      }
+    }
+
+    publishBtn.addEventListener('click', publishToGitHub);
+
+    document.getElementById('downloadPng').addEventListener('click', async function(){
+      await document.fonts.ready;
+      const svgString = buildSVG(currentState());
+      const svgBlob = new Blob([svgString], {type:'image/svg+xml;charset=utf-8'});
+      const url = URL.createObjectURL(svgBlob);
+      const img = new Image();
+      img.onload = function(){
+        const canvas = document.createElement('canvas');
+        canvas.width = 1080; canvas.height = 1080;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, 1080, 1080);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(function(blob){
+          const link = document.createElement('a');
+          link.download = 'anuar-cotizacion-' + rateInput.value + '.png';
+          link.href = URL.createObjectURL(blob);
+          link.click();
+        }, 'image/png');
+      };
+      img.src = url;
+    });
+
+    document.getElementById('downloadJson').addEventListener('click', function(){
+      const data = currentState();
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+      const link = document.createElement('a');
+      link.download = 'data.json';
+      link.href = URL.createObjectURL(blob);
+      link.click();
+    });
+
+    loadLocal();
+    render();
+  </script>
+</body>
+</html>
