@@ -102,7 +102,7 @@ function buildSVG({ rate, noComision }){
     <text x="170" y="6" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="64" fill="#F5F1E8">${ventaStr}</text>
   </g>
 
-  <text x="540" y="536" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="24" fill="#F5F1E8">1 Dólar 🇦🇷 = 1 Dólar 🇪🇨</text>
+  <g transform="translate(540,540)"><text x="-262" y="9" text-anchor="end" font-family="Poppins" font-weight="500" font-size="30" fill="#F5F1E8">1 Dólar</text><g transform="translate(-228,0)"><circle r="22" fill="#0a0908" stroke="url(#goldFoil)" stroke-width="2"/><clipPath id="clipARmini"><circle r="18"/></clipPath><g clip-path="url(#clipARmini)"><rect x="-22" y="-22" width="44" height="14.666666666666666" fill="#74ACDF"/><rect x="-22" y="-7.333333333333333" width="44" height="14.666666666666666" fill="#FFFFFF"/><rect x="-22" y="7.333333333333333" width="44" height="14.666666666666666" fill="#74ACDF"/><circle r="6.16" fill="#F6B40E" stroke="#85340A" stroke-width="0.8"/></g></g><text x="0" y="9" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="30" fill="#8a7550">=</text><text x="30" y="9" text-anchor="start" font-family="Poppins" font-weight="500" font-size="30" fill="#F5F1E8">1 Dólar</text><g transform="translate(228,0)"><circle r="22" fill="#0a0908" stroke="url(#goldFoil)" stroke-width="2"/><clipPath id="clipECmini"><circle r="18"/></clipPath><g clip-path="url(#clipECmini)"><rect x="-22" y="-22" width="44" height="22" fill="#FFD100"/><rect x="-22" y="0" width="44" height="11.0" fill="#0F47AF"/><rect x="-22" y="11.0" width="44" height="11.0" fill="#EF3340"/><circle r="6.6" fill="#FFFFFF" stroke="#3A3A3A" stroke-width="0.6"/></g></g></g>
 
   ${noComision ? `
   <g transform="translate(540,590)">
@@ -116,8 +116,8 @@ function buildSVG({ rate, noComision }){
     <line x1="24" y1="0" x2="140" y2="0"/>
   </g>
 
-  <text x="540" y="700" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="26" fill="#F5F1E8">Transferimos a CVU / CBU.</text>
-  <text x="540" y="734" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="26" fill="#F5F1E8">Billeteras Virtuales y Bancos.</text>
+  <text x="540" y="700" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="26" fill="#F5F1E8">En Argentina trabajamos con todos los</text>
+  <text x="540" y="734" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="26" fill="#F5F1E8">bancos y Billeteras Virtuales</text>
 
   <text x="540" y="776" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="22" letter-spacing="2" fill="#C9A227">Recibimos en Ecuador en los bancos</text>
 
