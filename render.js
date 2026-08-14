@@ -92,6 +92,7 @@ function buildSVG({ rate, noComision }){
   <line x1="140" y1="264" x2="940" y2="264" stroke="url(#goldLine)" stroke-width="1"/>
 
   <text x="540" y="330" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="26" letter-spacing="2" fill="#C9A227">Cotización · ${dateStr}</text>
+  <text x="540" y="376" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="28" letter-spacing="4" fill="#F5F1E8">DÓLAR ECUADOR</text>
 
   <g transform="translate(540,470)">
     <text x="-170" y="-54" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="17" letter-spacing="5" fill="#C9A227">COMPRA</text>
