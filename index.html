@@ -8,12 +8,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Lora:ital,wght@1,500&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;}
-  html,body{ margin:0; min-height:100vh; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px 16px; gap:18px; }
+  html,body{ margin:0; min-height:100vh; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:36px 16px 24px; gap:18px; }
   #stage{ width:min(94vw,560px); aspect-ratio:1/1; }
   #stage svg{ width:100%; height:100%; display:block; }
 
   .tagline{
-    font-family:'Lora',serif; font-style:italic; font-weight:500; font-size:13px;
+    font-family:'Lora',serif; font-style:italic; font-weight:500; font-size:14px;
     color:#F5F1E8; opacity:.75; letter-spacing:.02em; text-align:center;
   }
 
@@ -22,7 +22,7 @@
     width:fit-content; padding:10px 18px; border-radius:10px;
     background:#25D366;
     color:#0b1a0e; text-decoration:none;
-    font-family:'Poppins',sans-serif; font-weight:600; font-size:14px; letter-spacing:.02em;
+    font-family:'Poppins',sans-serif; font-weight:600; font-size:15px; letter-spacing:.02em;
     box-shadow:0 8px 22px rgba(0,0,0,.4);
   }
   .wa-btn svg{ width:17px; height:17px; flex:0 0 auto; }
@@ -81,7 +81,7 @@ function bankChip(x, y, bank){
   return `
     <g transform="translate(${x},${y})">
       ${bankIcon(0,0,bank.color)}
-      <text x="18" y="6" text-anchor="start" font-family="Poppins" font-weight="400" font-size="24" fill="#F5F1E8">${bank.name}</text>
+      <text x="18" y="6" text-anchor="start" font-family="Poppins" font-weight="400" font-size="25" fill="#F5F1E8">${bank.name}</text>
     </g>`;
 }
 
@@ -124,14 +124,14 @@ function buildSVG({ rate, noComision }){
     <path d="M110 1014 L66 1014 L66 970"/>
   </g>
 
-  <text x="540" y="182" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="62" letter-spacing="7" fill="url(#goldFoil)">ANUAR</text>
+  <text x="540" y="182" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="63" letter-spacing="7" fill="url(#goldFoil)">ANUAR</text>
   <line x1="410" y1="212" x2="470" y2="212" stroke="url(#goldLine)" stroke-width="1.5"/>
-  <text x="540" y="220" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="20" letter-spacing="10" fill="#F5F1E8">NYSE</text>
+  <text x="540" y="220" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="21" letter-spacing="10" fill="#F5F1E8">NYSE</text>
   <line x1="610" y1="212" x2="670" y2="212" stroke="url(#goldLine)" stroke-width="1.5"/>
 
   <line x1="140" y1="264" x2="940" y2="264" stroke="url(#goldLine)" stroke-width="1"/>
 
-  <text x="540" y="330" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="26" letter-spacing="2" fill="#C9A227">Cotización · ${dateStr}</text>
+  <text x="540" y="330" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="27" letter-spacing="2" fill="#C9A227">Cotización · ${dateStr}</text>
 
   <g transform="translate(540,470)">
     <g transform="translate(-340,-15)">
@@ -154,9 +154,9 @@ function buildSVG({ rate, noComision }){
       </g>
     </g>
 
-    <text x="-160" y="0" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="68" fill="url(#goldFoil)">${rateStr}</text>
-    <text x="0" y="-2" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="40" fill="#8a7550">=</text>
-    <text x="165" y="0" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="68" fill="#F5F1E8">1 USD</text>
+    <text x="-160" y="0" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="69" fill="url(#goldFoil)">${rateStr}</text>
+    <text x="0" y="-2" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="41" fill="#8a7550">=</text>
+    <text x="165" y="0" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="69" fill="#F5F1E8">1 USD</text>
 
     <g transform="translate(340,-15)">
       <circle r="52" fill="#0a0908" stroke="url(#goldFoil)" stroke-width="3"/>
@@ -175,7 +175,7 @@ function buildSVG({ rate, noComision }){
   ${noComision ? `
   <g transform="translate(540,590)">
     <rect x="-160" y="-24" width="320" height="48" rx="24" fill="none" stroke="url(#goldFoil)" stroke-width="1.5"/>
-    <text x="0" y="7" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="24" letter-spacing="6" fill="#E8C468">SIN COMISIONES</text>
+    <text x="0" y="7" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="25" letter-spacing="6" fill="#E8C468">SIN COMISIONES</text>
   </g>` : ``}
 
   <g transform="translate(540,654)" stroke="#E8C468" stroke-width="1.5" fill="none" opacity="0.85">
@@ -184,10 +184,10 @@ function buildSVG({ rate, noComision }){
     <line x1="24" y1="0" x2="140" y2="0"/>
   </g>
 
-  <text x="540" y="700" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="26" fill="#F5F1E8">Transferimos a CVU / CBU.</text>
-  <text x="540" y="734" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="26" fill="#F5F1E8">Billeteras Virtuales y Bancos.</text>
+  <text x="540" y="700" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="27" fill="#F5F1E8">Transferimos a CVU / CBU.</text>
+  <text x="540" y="734" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="27" fill="#F5F1E8">Billeteras Virtuales y Bancos.</text>
 
-  <text x="540" y="776" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="22" letter-spacing="2" fill="#C9A227">Recibimos en Ecuador en los bancos</text>
+  <text x="540" y="776" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="23" letter-spacing="2" fill="#C9A227">Recibimos en Ecuador en los bancos</text>
 
   <g transform="translate(540,822)">
     ${ROW1_X.map((x,i)=>bankChip(x,0,BANKS[i])).join('')}
@@ -197,7 +197,7 @@ function buildSVG({ rate, noComision }){
   </g>
 
   <line x1="240" y1="922" x2="840" y2="922" stroke="url(#goldLine)" stroke-width="1"/>
-  <text x="540" y="962" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="21" letter-spacing="5" fill="#C9A227">SEGUI NUESTRAS COTIZACIONES DIARIAS</text>
+  <text x="540" y="962" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="22" letter-spacing="5" fill="#C9A227">SEGUI NUESTRAS COTIZACIONES DIARIAS</text>
 </svg>`;
 }
 
