@@ -227,10 +227,10 @@ function buildSVG(state){
 
   const flagsLine = '<g transform="translate(540,540)">' +
     '<text x="-262" y="9" text-anchor="end" font-family="Poppins" font-weight="500" font-size="30" fill="#F5F1E8">1 D\u00f3lar</text>' +
-    arFlagMini(-228,0,22) +
+    arFlagMini(-228,-7,22) +
     '<text x="0" y="9" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="30" fill="#8a7550">=</text>' +
     '<text x="30" y="9" text-anchor="start" font-family="Poppins" font-weight="500" font-size="30" fill="#F5F1E8">1 D\u00f3lar</text>' +
-    ecFlagMini(228,0,22) +
+    ecFlagMini(228,-7,22) +
     '</g>';
 
   return '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">' +
@@ -265,7 +265,7 @@ function buildSVG(state){
     '<text x="-170" y="6" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="64" fill="url(#goldFoil)">' + rateStr + '</text>' +
     '<line x1="0" y1="-42" x2="0" y2="18" stroke="#6b5f45" stroke-width="1.5"/>' +
     '<text x="170" y="-54" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="17" letter-spacing="5" fill="#C9A227">VENTA</text>' +
-    '<text x="170" y="6" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="64" fill="#F5F1E8">' + ventaStr + '</text>' +
+    '<text x="170" y="6" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="64" fill="url(#goldFoil)">' + ventaStr + '</text>' +
   '</g>' +
   flagsLine +
   comisionBlock +
