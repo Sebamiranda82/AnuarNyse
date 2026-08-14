@@ -1,6 +1,12 @@
 // ANUAR NYSE — shared render logic
 
-const BANKS = ["Pichincha", "Guayaquil", "Internacional", "Pacífico", "Bolivariano"];
+const BANKS = [
+  { name: "Pichincha",     color: "#FFC72C" },
+  { name: "Guayaquil",     color: "#E6007E" },
+  { name: "Internacional", color: "#FFC72C" },
+  { name: "Pacífico",      color: "#1565C0" },
+  { name: "Bolivariano",   color: "#2FB6A6" },
+];
 
 const MESES_ES = ["enero","febrero","marzo","abril","mayo","junio","julio",
   "agosto","septiembre","octubre","noviembre","diciembre"];
@@ -16,10 +22,10 @@ function formatARS(raw){
   return '$' + digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
-function bankIcon(x, y){
+function bankIcon(x, y, color){
   return `
-    <g transform="translate(${x},${y})" fill="none" stroke="#E8C468" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M-9,-8 L0,-13 L9,-8 Z" fill="#E8C468" stroke="none"/>
+    <g transform="translate(${x},${y})" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M-9,-8 L0,-13 L9,-8 Z" fill="${color}" stroke="none"/>
       <line x1="-9" y1="-8" x2="-9" y2="6"/>
       <line x1="-4.3" y1="-8" x2="-4.3" y2="6"/>
       <line x1="4.3" y1="-8" x2="4.3" y2="6"/>
@@ -29,11 +35,11 @@ function bankIcon(x, y){
     </g>`;
 }
 
-function bankChip(x, y, name){
+function bankChip(x, y, bank){
   return `
     <g transform="translate(${x},${y})">
-      ${bankIcon(0,0)}
-      <text x="18" y="6" text-anchor="start" font-family="Poppins" font-weight="400" font-size="24" fill="#F5F1E8">${name}</text>
+      ${bankIcon(0,0,bank.color)}
+      <text x="18" y="6" text-anchor="start" font-family="Poppins" font-weight="400" font-size="24" fill="#F5F1E8">${bank.name}</text>
     </g>`;
 }
 
@@ -136,18 +142,19 @@ function buildSVG({ rate, noComision }){
     <line x1="24" y1="0" x2="140" y2="0"/>
   </g>
 
-  <text x="540" y="712" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="29" fill="#F5F1E8">Dejanos tu CVU / CBU y te transferimos los pesos</text>
+  <text x="540" y="700" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="26" fill="#F5F1E8">Transferimos a CVU / CBU.</text>
+  <text x="540" y="734" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="26" fill="#F5F1E8">Billeteras Virtuales y Bancos.</text>
 
-  <text x="540" y="760" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="22" letter-spacing="2" fill="#C9A227">Recibimos en Ecuador en los bancos</text>
+  <text x="540" y="776" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="22" letter-spacing="2" fill="#C9A227">Recibimos en Ecuador en los bancos</text>
 
-  <g transform="translate(540,808)">
+  <g transform="translate(540,822)">
     ${ROW1_X.map((x,i)=>bankChip(x,0,BANKS[i])).join('')}
   </g>
-  <g transform="translate(540,858)">
+  <g transform="translate(540,870)">
     ${ROW2_X.map((x,i)=>bankChip(x,0,BANKS[i+3])).join('')}
   </g>
 
-  <line x1="240" y1="912" x2="840" y2="912" stroke="url(#goldLine)" stroke-width="1"/>
-  <text x="540" y="954" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="21" letter-spacing="5" fill="#C9A227">SEGUI NUESTRAS COTIZACIONES DIARIAS</text>
+  <line x1="240" y1="922" x2="840" y2="922" stroke="url(#goldLine)" stroke-width="1"/>
+  <text x="540" y="962" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="21" letter-spacing="5" fill="#C9A227">SEGUI NUESTRAS COTIZACIONES DIARIAS</text>
 </svg>`;
 }
