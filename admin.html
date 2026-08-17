@@ -84,8 +84,13 @@
 
     <div class="panel">
       <div class="field">
-        <label for="rate">Compra (ARS) — la venta se calcula sola (+3%)</label>
+        <label for="rate">Compra (ARS)</label>
         <input type="text" id="rate" inputmode="numeric" value="1540">
+      </div>
+
+      <div class="field">
+        <label for="percent">Porcentaje para calcular Venta (%)</label>
+        <input type="text" id="percent" inputmode="decimal" value="3">
       </div>
 
       <div class="field">
@@ -212,8 +217,9 @@ function ecFlagMini(x, y, r){
 }
 
 function buildSVG(state){
+  const pct = (state.percent === undefined || state.percent === null || state.percent === '') ? 3 : parseFloat(state.percent);
   const rateStr = formatARS(state.rate);
-  const ventaNum = Math.round(parseInt(String(state.rate||'0').replace(/[^\d]/g,''),10) * 1.03);
+  const ventaNum = Math.round(parseInt(String(state.rate||'0').replace(/[^\d]/g,''),10) * (1 + pct/100));
   const ventaStr = formatARS(ventaNum);
   const noComision = state.noComision;
   const dateStr = todayLabel();
@@ -286,6 +292,7 @@ function buildSVG(state){
 
   <script>
     const rateInput = document.getElementById('rate');
+    const percentInput = document.getElementById('percent');
     const noComisionInput = document.getElementById('noComision');
     const stage = document.getElementById('stage');
     const statusEl = document.getElementById('status');
@@ -298,7 +305,7 @@ function buildSVG(state){
     const publishBtn = document.getElementById('publishBtn');
 
     function currentState(){
-      return { rate: rateInput.value, noComision: noComisionInput.checked };
+      return { rate: rateInput.value, percent: percentInput.value, noComision: noComisionInput.checked };
     }
 
     function render(){
@@ -329,6 +336,7 @@ function buildSVG(state){
         if(params.has('branch')) ghBranch.value = params.get('branch');
         if(params.has('path'))   ghPath.value   = params.get('path');
         if(params.has('token'))  ghToken.value  = params.get('token');
+        if(params.has('percent')) percentInput.value = params.get('percent');
         return true;
       }catch(e){ return false; }
     }
@@ -339,6 +347,7 @@ function buildSVG(state){
         if(raw){
           const s = JSON.parse(raw);
           rateInput.value = s.rate || rateInput.value;
+          percentInput.value = (s.percent !== undefined && s.percent !== null && s.percent !== '') ? s.percent : percentInput.value;
           noComisionInput.checked = (s.noComision !== undefined) ? s.noComision : true;
         }
         const gh = localStorage.getItem('anuar-gh-config');
@@ -355,7 +364,7 @@ function buildSVG(state){
       loadFromURL();
     }
 
-    [rateInput, noComisionInput, ghOwner, ghRepo, ghBranch, ghPath, ghToken].forEach(function(el){
+    [rateInput, percentInput, noComisionInput, ghOwner, ghRepo, ghBranch, ghPath, ghToken].forEach(function(el){
       el.addEventListener('input', function(){ render(); scheduleSave(); });
       el.addEventListener('change', function(){ render(); scheduleSave(); });
     });
