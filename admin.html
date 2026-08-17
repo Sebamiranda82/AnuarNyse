@@ -252,13 +252,13 @@ function buildSVG(state){
   const dateStr = todayLabel();
 
   const comisionBlock = noComision ?
-    '<g transform="translate(540,638)"><rect x="-160" y="-24" width="320" height="48" rx="24" fill="none" stroke="url(#goldFoil)" stroke-width="1.5"/><text x="0" y="7" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="24" letter-spacing="6" fill="#E8C468">SIN COMISIONES</text></g>'
+    '<g transform="translate(540,592)"><rect x="-160" y="-24" width="320" height="48" rx="24" fill="none" stroke="url(#goldFoil)" stroke-width="1.5"/><text x="0" y="7" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="24" letter-spacing="6" fill="#E8C468">SIN COMISIONES</text></g>'
     : '';
 
   const row1 = ROW1_X.map(function(x,i){ return bankChip(x,0,BANKS[i]); }).join('');
   const row2 = ROW2_X.map(function(x,i){ return bankChip(x,0,BANKS[i+3]); }).join('');
 
-  const flagsLine = '<g transform="translate(540,590)">' +
+  const flagsLine = '<g transform="translate(540,544)">' +
     '<text x="-93" y="9" text-anchor="end" font-family="Poppins" font-weight="500" font-size="30" fill="#F5F1E8">1 D\u00f3lar</text>' +
     arFlagMini(-59,-3,22) +
     '<text x="0" y="9" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="30" fill="#8a7550">=</text>' +
@@ -286,29 +286,26 @@ function buildSVG(state){
     '<path d="M66 110 L66 66 L110 66"/><path d="M970 66 L1014 66 L1014 110"/>' +
     '<path d="M1014 970 L1014 1014 L970 1014"/><path d="M110 1014 L66 1014 L66 970"/>' +
   '</g>' +
-  '<text x="540" y="182" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="62" letter-spacing="7" fill="url(#goldFoil)">ANUAR</text>' +
-  '<line x1="410" y1="212" x2="470" y2="212" stroke="url(#goldLine)" stroke-width="1.5"/>' +
-  '<text x="540" y="220" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="20" letter-spacing="10" fill="#F5F1E8">NYSE</text>' +
-  '<line x1="610" y1="212" x2="670" y2="212" stroke="url(#goldLine)" stroke-width="1.5"/>' +
-  '<line x1="140" y1="256" x2="940" y2="256" stroke="url(#goldLine)" stroke-width="1"/>' +
-  '<text x="540" y="296" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="24" letter-spacing="2" fill="#C9A227">Cotización · ' + dateStr + '</text>' +
-  '<text x="540" y="336" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="22" letter-spacing="3" fill="#F5F1E8">D\u00d3LAR ECUADOR MAYORISTA</text>' +
-  '<g transform="translate(540,398)">' + rateBlock(mayoristaCompraStr, mayoristaVentaStr) + '</g>' +
-  '<text x="540" y="462" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="22" letter-spacing="3" fill="#F5F1E8">D\u00d3LAR ECUADOR MINORISTA</text>' +
-  '<g transform="translate(540,524)">' + rateBlock(minoristaCompraStr, minoristaVentaStr) + '</g>' +
+  '<text x="540" y="176" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="62" letter-spacing="7" fill="url(#goldFoil)">ANUAR</text>' +
+  '<line x1="140" y1="210" x2="940" y2="210" stroke="url(#goldLine)" stroke-width="1"/>' +
+  '<text x="540" y="250" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="24" letter-spacing="2" fill="#C9A227">Cotización · ' + dateStr + '</text>' +
+  '<text x="540" y="290" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="22" letter-spacing="3" fill="#F5F1E8">D\u00d3LAR ECUADOR MAYORISTA</text>' +
+  '<g transform="translate(540,352)">' + rateBlock(mayoristaCompraStr, mayoristaVentaStr) + '</g>' +
+  '<text x="540" y="416" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="22" letter-spacing="3" fill="#F5F1E8">D\u00d3LAR ECUADOR MINORISTA</text>' +
+  '<g transform="translate(540,478)">' + rateBlock(minoristaCompraStr, minoristaVentaStr) + '</g>' +
   flagsLine +
   comisionBlock +
-  '<g transform="translate(540,700)" stroke="#E8C468" stroke-width="1.5" fill="none" opacity="0.85">' +
+  '<g transform="translate(540,654)" stroke="#E8C468" stroke-width="1.5" fill="none" opacity="0.85">' +
     '<rect x="-8" y="-8" width="16" height="16" transform="rotate(45)"/>' +
     '<line x1="-140" y1="0" x2="-24" y2="0"/><line x1="24" y1="0" x2="140" y2="0"/>' +
   '</g>' +
-  '<text x="540" y="746" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="25" fill="#F5F1E8">En Argentina trabajamos con todos los</text>' +
-  '<text x="540" y="778" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="25" fill="#F5F1E8">bancos y Billeteras Virtuales</text>' +
-  '<text x="540" y="818" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="21" letter-spacing="2" fill="#C9A227">Recibimos en Ecuador en los bancos</text>' +
-  '<g transform="translate(540,862)">' + row1 + '</g>' +
-  '<g transform="translate(540,906)">' + row2 + '</g>' +
-  '<line x1="240" y1="954" x2="840" y2="954" stroke="url(#goldLine)" stroke-width="1"/>' +
-  '<text x="540" y="992" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="19" letter-spacing="4" fill="#C9A227">SEGUI NUESTRAS COTIZACIONES DIARIAS</text>' +
+  '<text x="540" y="700" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="25" fill="#F5F1E8">En Argentina trabajamos con todos los</text>' +
+  '<text x="540" y="732" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="25" fill="#F5F1E8">bancos y Billeteras Virtuales</text>' +
+  '<text x="540" y="772" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="21" letter-spacing="2" fill="#C9A227">Recibimos en Ecuador en los bancos</text>' +
+  '<g transform="translate(540,816)">' + row1 + '</g>' +
+  '<g transform="translate(540,860)">' + row2 + '</g>' +
+  '<line x1="240" y1="908" x2="840" y2="908" stroke="url(#goldLine)" stroke-width="1"/>' +
+  '<text x="540" y="946" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="19" letter-spacing="4" fill="#C9A227">SEGUI NUESTRAS COTIZACIONES DIARIAS</text>' +
   '</svg>';
 }
   </script>
