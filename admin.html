@@ -93,8 +93,8 @@
           <input type="text" id="mayoristaCompra" inputmode="numeric" value="1530">
         </div>
         <div class="field">
-          <label for="mayoristaVenta">Venta</label>
-          <input type="text" id="mayoristaVenta" inputmode="numeric" value="1560">
+          <label for="percentMayorista">Porcentaje Venta (%)</label>
+          <input type="text" id="percentMayorista" inputmode="decimal" value="2">
         </div>
       </div>
 
@@ -244,8 +244,10 @@ function buildSVG(state){
   const minoristaCompraStr = formatARS(state.rate);
   const minoristaVentaNum = Math.round(parseInt(String(state.rate||'0').replace(/[^\d]/g,''),10) * (1 + pct/100));
   const minoristaVentaStr = formatARS(minoristaVentaNum);
+  const pctMay = (state.percentMayorista === undefined || state.percentMayorista === null || state.percentMayorista === '') ? 2 : parseFloat(state.percentMayorista);
   const mayoristaCompraStr = formatARS(state.mayoristaCompra);
-  const mayoristaVentaStr = formatARS(state.mayoristaVenta);
+  const mayoristaVentaNum = Math.round(parseInt(String(state.mayoristaCompra||'0').replace(/[^\d]/g,''),10) * (1 + pctMay/100));
+  const mayoristaVentaStr = formatARS(mayoristaVentaNum);
   const noComision = state.noComision;
   const dateStr = todayLabel();
 
@@ -315,7 +317,7 @@ function buildSVG(state){
     const rateInput = document.getElementById('rate');
     const percentInput = document.getElementById('percent');
     const mayoristaCompraInput = document.getElementById('mayoristaCompra');
-    const mayoristaVentaInput = document.getElementById('mayoristaVenta');
+    const percentMayoristaInput = document.getElementById('percentMayorista');
     const noComisionInput = document.getElementById('noComision');
     const stage = document.getElementById('stage');
     const statusEl = document.getElementById('status');
@@ -332,7 +334,7 @@ function buildSVG(state){
         rate: rateInput.value,
         percent: percentInput.value,
         mayoristaCompra: mayoristaCompraInput.value,
-        mayoristaVenta: mayoristaVentaInput.value,
+        percentMayorista: percentMayoristaInput.value,
         noComision: noComisionInput.checked
       };
     }
@@ -378,7 +380,7 @@ function buildSVG(state){
           rateInput.value = s.rate || rateInput.value;
           percentInput.value = (s.percent !== undefined && s.percent !== null && s.percent !== '') ? s.percent : percentInput.value;
           mayoristaCompraInput.value = s.mayoristaCompra || mayoristaCompraInput.value;
-          mayoristaVentaInput.value = s.mayoristaVenta || mayoristaVentaInput.value;
+          percentMayoristaInput.value = (s.percentMayorista !== undefined && s.percentMayorista !== null && s.percentMayorista !== '') ? s.percentMayorista : percentMayoristaInput.value;
           noComisionInput.checked = (s.noComision !== undefined) ? s.noComision : true;
         }
         const gh = localStorage.getItem('anuar-gh-config');
@@ -394,7 +396,7 @@ function buildSVG(state){
       loadFromURL();
     }
 
-    [rateInput, percentInput, mayoristaCompraInput, mayoristaVentaInput, noComisionInput, ghOwner, ghRepo, ghBranch, ghPath, ghToken].forEach(function(el){
+    [rateInput, percentInput, mayoristaCompraInput, percentMayoristaInput, noComisionInput, ghOwner, ghRepo, ghBranch, ghPath, ghToken].forEach(function(el){
       el.addEventListener('input', function(){ render(); scheduleSave(); });
       el.addEventListener('change', function(){ render(); scheduleSave(); });
     });
