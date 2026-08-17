@@ -98,52 +98,49 @@ function buildSVG({ rate, percent, mayoristaCompra, percentMayorista, noComision
     <path d="M110 1014 L66 1014 L66 970"/>
   </g>
 
-  <text x="540" y="182" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="62" letter-spacing="7" fill="url(#goldFoil)">ANUAR</text>
-  <line x1="410" y1="212" x2="470" y2="212" stroke="url(#goldLine)" stroke-width="1.5"/>
-  <text x="540" y="220" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="20" letter-spacing="10" fill="#F5F1E8">NYSE</text>
-  <line x1="610" y1="212" x2="670" y2="212" stroke="url(#goldLine)" stroke-width="1.5"/>
+  <text x="540" y="176" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="62" letter-spacing="7" fill="url(#goldFoil)">ANUAR</text>
 
-  <line x1="140" y1="256" x2="940" y2="256" stroke="url(#goldLine)" stroke-width="1"/>
+  <line x1="140" y1="210" x2="940" y2="210" stroke="url(#goldLine)" stroke-width="1"/>
 
-  <text x="540" y="296" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="24" letter-spacing="2" fill="#C9A227">Cotización · ${dateStr}</text>
+  <text x="540" y="250" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="24" letter-spacing="2" fill="#C9A227">Cotización · ${dateStr}</text>
 
-  <text x="540" y="336" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="22" letter-spacing="3" fill="#F5F1E8">DÓLAR ECUADOR MAYORISTA</text>
-  <g transform="translate(540,398)">
+  <text x="540" y="290" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="22" letter-spacing="3" fill="#F5F1E8">DÓLAR ECUADOR MAYORISTA</text>
+  <g transform="translate(540,352)">
     ${rateBlock(mayoristaCompraStr, mayoristaVentaStr)}
   </g>
 
-  <text x="540" y="462" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="22" letter-spacing="3" fill="#F5F1E8">DÓLAR ECUADOR MINORISTA</text>
-  <g transform="translate(540,524)">
+  <text x="540" y="416" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="22" letter-spacing="3" fill="#F5F1E8">DÓLAR ECUADOR MINORISTA</text>
+  <g transform="translate(540,478)">
     ${rateBlock(minoristaCompraStr, minoristaVentaStr)}
   </g>
 
-  <g transform="translate(540,590)"><text x="-93" y="9" text-anchor="end" font-family="Poppins" font-weight="500" font-size="30" fill="#F5F1E8">1 Dólar</text><g transform="translate(-59,-3)"><circle r="22" fill="#0a0908" stroke="url(#goldFoil)" stroke-width="2"/><clipPath id="clipARmini"><circle r="18"/></clipPath><g clip-path="url(#clipARmini)"><rect x="-22" y="-22" width="44" height="14.666666666666666" fill="#74ACDF"/><rect x="-22" y="-7.333333333333333" width="44" height="14.666666666666666" fill="#FFFFFF"/><rect x="-22" y="7.333333333333333" width="44" height="14.666666666666666" fill="#74ACDF"/><circle r="6.16" fill="#F6B40E" stroke="#85340A" stroke-width="0.8"/></g></g><text x="0" y="9" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="30" fill="#8a7550">=</text><text x="30" y="9" text-anchor="start" font-family="Poppins" font-weight="500" font-size="30" fill="#F5F1E8">1 Dólar</text><g transform="translate(154,-3)"><circle r="22" fill="#0a0908" stroke="url(#goldFoil)" stroke-width="2"/><clipPath id="clipECmini"><circle r="18"/></clipPath><g clip-path="url(#clipECmini)"><rect x="-22" y="-22" width="44" height="22" fill="#FFD100"/><rect x="-22" y="0" width="44" height="11.0" fill="#0F47AF"/><rect x="-22" y="11.0" width="44" height="11.0" fill="#EF3340"/><circle r="6.6" fill="#FFFFFF" stroke="#3A3A3A" stroke-width="0.6"/></g></g></g>
+  <g transform="translate(540,544)"><text x="-93" y="9" text-anchor="end" font-family="Poppins" font-weight="500" font-size="30" fill="#F5F1E8">1 Dólar</text><g transform="translate(-59,-3)"><circle r="22" fill="#0a0908" stroke="url(#goldFoil)" stroke-width="2"/><clipPath id="clipARmini"><circle r="18"/></clipPath><g clip-path="url(#clipARmini)"><rect x="-22" y="-22" width="44" height="14.666666666666666" fill="#74ACDF"/><rect x="-22" y="-7.333333333333333" width="44" height="14.666666666666666" fill="#FFFFFF"/><rect x="-22" y="7.333333333333333" width="44" height="14.666666666666666" fill="#74ACDF"/><circle r="6.16" fill="#F6B40E" stroke="#85340A" stroke-width="0.8"/></g></g><text x="0" y="9" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="30" fill="#8a7550">=</text><text x="30" y="9" text-anchor="start" font-family="Poppins" font-weight="500" font-size="30" fill="#F5F1E8">1 Dólar</text><g transform="translate(154,-3)"><circle r="22" fill="#0a0908" stroke="url(#goldFoil)" stroke-width="2"/><clipPath id="clipECmini"><circle r="18"/></clipPath><g clip-path="url(#clipECmini)"><rect x="-22" y="-22" width="44" height="22" fill="#FFD100"/><rect x="-22" y="0" width="44" height="11.0" fill="#0F47AF"/><rect x="-22" y="11.0" width="44" height="11.0" fill="#EF3340"/><circle r="6.6" fill="#FFFFFF" stroke="#3A3A3A" stroke-width="0.6"/></g></g></g>
 
   ${noComision ? `
-  <g transform="translate(540,638)">
+  <g transform="translate(540,592)">
     <rect x="-160" y="-24" width="320" height="48" rx="24" fill="none" stroke="url(#goldFoil)" stroke-width="1.5"/>
     <text x="0" y="7" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="24" letter-spacing="6" fill="#E8C468">SIN COMISIONES</text>
   </g>` : ``}
 
-  <g transform="translate(540,700)" stroke="#E8C468" stroke-width="1.5" fill="none" opacity="0.85">
+  <g transform="translate(540,654)" stroke="#E8C468" stroke-width="1.5" fill="none" opacity="0.85">
     <rect x="-8" y="-8" width="16" height="16" transform="rotate(45)"/>
     <line x1="-140" y1="0" x2="-24" y2="0"/>
     <line x1="24" y1="0" x2="140" y2="0"/>
   </g>
 
-  <text x="540" y="746" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="25" fill="#F5F1E8">En Argentina trabajamos con todos los</text>
-  <text x="540" y="778" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="25" fill="#F5F1E8">bancos y Billeteras Virtuales</text>
+  <text x="540" y="700" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="25" fill="#F5F1E8">En Argentina trabajamos con todos los</text>
+  <text x="540" y="732" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="25" fill="#F5F1E8">bancos y Billeteras Virtuales</text>
 
-  <text x="540" y="818" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="21" letter-spacing="2" fill="#C9A227">Recibimos en Ecuador en los bancos</text>
+  <text x="540" y="772" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="21" letter-spacing="2" fill="#C9A227">Recibimos en Ecuador en los bancos</text>
 
-  <g transform="translate(540,862)">
+  <g transform="translate(540,816)">
     ${ROW1_X.map((x,i)=>bankChip(x,0,BANKS[i])).join('')}
   </g>
-  <g transform="translate(540,906)">
+  <g transform="translate(540,860)">
     ${ROW2_X.map((x,i)=>bankChip(x,0,BANKS[i+3])).join('')}
   </g>
 
-  <line x1="240" y1="954" x2="840" y2="954" stroke="url(#goldLine)" stroke-width="1"/>
-  <text x="540" y="992" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="19" letter-spacing="4" fill="#C9A227">SEGUI NUESTRAS COTIZACIONES DIARIAS</text>
+  <line x1="240" y1="908" x2="840" y2="908" stroke="url(#goldLine)" stroke-width="1"/>
+  <text x="540" y="946" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="19" letter-spacing="4" fill="#C9A227">SEGUI NUESTRAS COTIZACIONES DIARIAS</text>
 </svg>`;
 }
