@@ -319,6 +319,20 @@ function buildSVG(state){
       }, 400);
     }
 
+    function loadFromURL(){
+      try{
+        const params = new URLSearchParams(window.location.search);
+        const hasAny = params.has('owner') || params.has('repo') || params.has('token');
+        if(!hasAny) return false;
+        if(params.has('owner'))  ghOwner.value  = params.get('owner');
+        if(params.has('repo'))   ghRepo.value   = params.get('repo');
+        if(params.has('branch')) ghBranch.value = params.get('branch');
+        if(params.has('path'))   ghPath.value   = params.get('path');
+        if(params.has('token'))  ghToken.value  = params.get('token');
+        return true;
+      }catch(e){ return false; }
+    }
+
     function loadLocal(){
       try{
         const raw = localStorage.getItem('anuar-admin-state');
@@ -337,6 +351,8 @@ function buildSVG(state){
           ghToken.value = c.token || '';
         }
       }catch(e){}
+      // Los datos en la URL (si vienen) siempre pisan lo guardado localmente
+      loadFromURL();
     }
 
     [rateInput, noComisionInput, ghOwner, ghRepo, ghBranch, ghPath, ghToken].forEach(function(el){
@@ -451,6 +467,7 @@ function buildSVG(state){
     });
 
     loadLocal();
+    scheduleSave(); // guarda también en este navegador por si sirve de respaldo
     render();
   </script>
 </body>
