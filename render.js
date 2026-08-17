@@ -46,9 +46,10 @@ function bankChip(x, y, bank){
 const ROW1_X = [-317, -77, 133];
 const ROW2_X = [-195, 35];
 
-function buildSVG({ rate, noComision }){
+function buildSVG({ rate, noComision, percent }){
+  const pct = (percent === undefined || percent === null || percent === '') ? 3 : parseFloat(percent);
   const rateStr = formatARS(rate);
-  const ventaNum = Math.round(parseInt(String(rate||'0').replace(/[^\d]/g,''),10) * 1.03);
+  const ventaNum = Math.round(parseInt(String(rate||'0').replace(/[^\d]/g,''),10) * (1 + pct/100));
   const ventaStr = formatARS(ventaNum);
   const dateStr = todayLabel();
 
