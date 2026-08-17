@@ -1,5 +1,7 @@
 {
-  "rate": "1545",
-  "percent": "4",
+  "rate": "1540",
+  "percent": 3,
+  "mayoristaCompra": "1530",
+  "mayoristaVenta": "1560",
   "noComision": true
 }
