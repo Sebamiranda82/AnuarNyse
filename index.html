@@ -97,13 +97,15 @@ function rateBlock(compraStr, ventaStr){
     <text x="170" y="4" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="50" fill="url(#goldFoil)">${ventaStr}</text>`;
 }
 
-function buildSVG({ rate, percent, mayoristaCompra, mayoristaVenta, noComision }){
+function buildSVG({ rate, percent, mayoristaCompra, percentMayorista, noComision }){
   const pct = (percent === undefined || percent === null || percent === '') ? 3 : parseFloat(percent);
+  const pctMay = (percentMayorista === undefined || percentMayorista === null || percentMayorista === '') ? 2 : parseFloat(percentMayorista);
   const minoristaCompraStr = formatARS(rate);
   const minoristaVentaNum = Math.round(parseInt(String(rate||'0').replace(/[^\d]/g,''),10) * (1 + pct/100));
   const minoristaVentaStr = formatARS(minoristaVentaNum);
   const mayoristaCompraStr = formatARS(mayoristaCompra);
-  const mayoristaVentaStr = formatARS(mayoristaVenta);
+  const mayoristaVentaNum = Math.round(parseInt(String(mayoristaCompra||'0').replace(/[^\d]/g,''),10) * (1 + pctMay/100));
+  const mayoristaVentaStr = formatARS(mayoristaVentaNum);
   const dateStr = todayLabel();
 
   return `
@@ -190,7 +192,7 @@ function buildSVG({ rate, percent, mayoristaCompra, mayoristaVenta, noComision }
 
 </script>
   <script>
-    const DEFAULTS = { rate: "1540", noComision: true, percent: 3, mayoristaCompra: "1530", mayoristaVenta: "1560" };
+    const DEFAULTS = { rate: "1540", noComision: true, percent: 3, mayoristaCompra: "1530", percentMayorista: 2 };
 
     async function loadData(){
       try{
