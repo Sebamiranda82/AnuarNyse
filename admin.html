@@ -60,7 +60,6 @@
   .status.err{ color:#e2857a; }
   .status.busy{ color:#b8b8ba; }
 
-  .section-title{ font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--gold-5); margin:22px 0 12px; padding-top:16px; border-top:1px solid var(--panel-border); }
   .row2{ display:flex; gap:10px; }
   .row2 .field{ flex:1; margin-bottom:0; }
 
@@ -85,20 +84,6 @@
     </div>
 
     <div class="panel">
-
-      <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Mayorista</div>
-      <div class="row2">
-        <div class="field">
-          <label for="mayoristaCompra">Compra</label>
-          <input type="text" id="mayoristaCompra" inputmode="numeric" value="1530">
-        </div>
-        <div class="field">
-          <label for="percentMayorista">Porcentaje Venta (%)</label>
-          <input type="text" id="percentMayorista" inputmode="decimal" value="2">
-        </div>
-      </div>
-
-      <div class="section-title">Minorista</div>
       <div class="field">
         <label for="rate">Compra (ARS)</label>
         <input type="text" id="rate" inputmode="numeric" value="1540">
@@ -232,34 +217,30 @@ function ecFlagMini(x, y, r){
 }
 
 function rateBlock(compraStr, ventaStr){
-  return '<text x="-170" y="-38" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="15" letter-spacing="4" fill="#C9A227">COMPRA</text>' +
-    '<text x="-170" y="4" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="50" fill="url(#goldFoil)">' + compraStr + '</text>' +
-    '<line x1="0" y1="-48" x2="0" y2="12" stroke="#6b5f45" stroke-width="1.5"/>' +
-    '<text x="170" y="-38" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="15" letter-spacing="4" fill="#C9A227">VENTA</text>' +
-    '<text x="170" y="4" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="50" fill="url(#goldFoil)">' + ventaStr + '</text>';
+  return '<text x="-170" y="-52" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="17" letter-spacing="5" fill="#C9A227">COMPRA</text>' +
+    '<text x="-170" y="6" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="64" fill="url(#goldFoil)">' + compraStr + '</text>' +
+    '<line x1="0" y1="-52" x2="0" y2="16" stroke="#6b5f45" stroke-width="1.5"/>' +
+    '<text x="170" y="-52" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="17" letter-spacing="5" fill="#C9A227">VENTA</text>' +
+    '<text x="170" y="6" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="64" fill="url(#goldFoil)">' + ventaStr + '</text>';
 }
 
 function buildSVG(state){
   const pct = (state.percent === undefined || state.percent === null || state.percent === '') ? 3 : parseFloat(state.percent);
-  const minoristaCompraStr = formatARS(state.rate);
-  const minoristaVentaNum = Math.round(parseInt(String(state.rate||'0').replace(/[^\d]/g,''),10) * (1 + pct/100));
-  const minoristaVentaStr = formatARS(minoristaVentaNum);
-  const pctMay = (state.percentMayorista === undefined || state.percentMayorista === null || state.percentMayorista === '') ? 2 : parseFloat(state.percentMayorista);
-  const mayoristaCompraStr = formatARS(state.mayoristaCompra);
-  const mayoristaVentaNum = Math.round(parseInt(String(state.mayoristaCompra||'0').replace(/[^\d]/g,''),10) * (1 + pctMay/100));
-  const mayoristaVentaStr = formatARS(mayoristaVentaNum);
+  const compraStr = formatARS(state.rate);
+  const ventaNum = Math.round(parseInt(String(state.rate||'0').replace(/[^\d]/g,''),10) * (1 + pct/100));
+  const ventaStr = formatARS(ventaNum);
   const noComision = state.noComision;
   const dateStr = todayLabel();
 
   const row1 = ROW1_X.map(function(x,i){ return bankChip(x,0,BANKS[i]); }).join('');
   const row2 = ROW2_X.map(function(x,i){ return bankChip(x,0,BANKS[i+3]); }).join('');
 
-  const flagsLine = '<g transform="translate(540,544)">' +
-    '<text x="-93" y="9" text-anchor="end" font-family="Poppins" font-weight="500" font-size="30" fill="#F5F1E8">1 D\u00f3lar</text>' +
-    arFlagMini(-59,-3,22) +
-    '<text x="0" y="9" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="30" fill="#8a7550">=</text>' +
-    '<text x="30" y="9" text-anchor="start" font-family="Poppins" font-weight="500" font-size="30" fill="#F5F1E8">1 D\u00f3lar</text>' +
-    ecFlagMini(154,-3,22) +
+  const flagsLine = '<g transform="translate(540,548)">' +
+    '<text x="-93" y="9" text-anchor="end" font-family="Poppins" font-weight="500" font-size="32" fill="#F5F1E8">1 D\u00f3lar</text>' +
+    arFlagMini(-59,-3,23) +
+    '<text x="0" y="9" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="32" fill="#8a7550">=</text>' +
+    '<text x="30" y="9" text-anchor="start" font-family="Poppins" font-weight="500" font-size="32" fill="#F5F1E8">1 D\u00f3lar</text>' +
+    ecFlagMini(154,-3,23) +
     '</g>';
 
   return '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">' +
@@ -282,25 +263,23 @@ function buildSVG(state){
     '<path d="M66 110 L66 66 L110 66"/><path d="M970 66 L1014 66 L1014 110"/>' +
     '<path d="M1014 970 L1014 1014 L970 1014"/><path d="M110 1014 L66 1014 L66 970"/>' +
   '</g>' +
-  '<text x="540" y="176" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="62" letter-spacing="7" fill="url(#goldFoil)">ANUAR</text>' +
-  '<line x1="140" y1="210" x2="940" y2="210" stroke="url(#goldLine)" stroke-width="1"/>' +
-  '<text x="540" y="250" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="24" letter-spacing="2" fill="#C9A227">Cotización · ' + dateStr + '</text>' +
-  '<text x="540" y="290" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="21" letter-spacing="2" fill="#F5F1E8">D\u00d3LAR ECUADOR MAYORISTA <tspan fill="#C9A227" font-weight="500" font-size="18" letter-spacing="1">(\u2265100 USD)</tspan></text>' +
-  '<g transform="translate(540,352)">' + rateBlock(mayoristaCompraStr, mayoristaVentaStr) + '</g>' +
-  '<text x="540" y="416" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="22" letter-spacing="3" fill="#F5F1E8">D\u00d3LAR ECUADOR MINORISTA</text>' +
-  '<g transform="translate(540,478)">' + rateBlock(minoristaCompraStr, minoristaVentaStr) + '</g>' +
+  '<text x="540" y="200" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="66" letter-spacing="8" fill="url(#goldFoil)">ANUAR</text>' +
+  '<line x1="140" y1="240" x2="940" y2="240" stroke="url(#goldLine)" stroke-width="1"/>' +
+  '<text x="540" y="300" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="27" letter-spacing="2" fill="#C9A227">Cotización · ' + dateStr + '</text>' +
+  '<text x="540" y="352" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="25" letter-spacing="4" fill="#F5F1E8">D\u00d3LAR ECUADOR MINORISTA</text>' +
+  '<g transform="translate(540,432)">' + rateBlock(compraStr, ventaStr) + '</g>' +
   flagsLine +
-  '<g transform="translate(540,654)" stroke="#E8C468" stroke-width="1.5" fill="none" opacity="0.85">' +
+  '<g transform="translate(540,652)" stroke="#E8C468" stroke-width="1.5" fill="none" opacity="0.85">' +
     '<rect x="-8" y="-8" width="16" height="16" transform="rotate(45)"/>' +
     '<line x1="-140" y1="0" x2="-24" y2="0"/><line x1="24" y1="0" x2="140" y2="0"/>' +
   '</g>' +
-  '<text x="540" y="700" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="25" fill="#F5F1E8">En Argentina trabajamos con todos los</text>' +
-  '<text x="540" y="732" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="25" fill="#F5F1E8">bancos y Billeteras Virtuales</text>' +
-  '<text x="540" y="772" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="21" letter-spacing="2" fill="#C9A227">Recibimos en Ecuador en los bancos</text>' +
-  '<g transform="translate(540,816)">' + row1 + '</g>' +
-  '<g transform="translate(540,860)">' + row2 + '</g>' +
-  '<line x1="240" y1="908" x2="840" y2="908" stroke="url(#goldLine)" stroke-width="1"/>' +
-  '<text x="540" y="946" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="24" letter-spacing="8" fill="#E8C468">' + (noComision ? 'SIN COMISIONES' : 'SEGUI NUESTRAS COTIZACIONES DIARIAS') + '</text>' +
+  '<text x="540" y="712" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="28" fill="#F5F1E8">En Argentina trabajamos con todos los</text>' +
+  '<text x="540" y="750" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="28" fill="#F5F1E8">bancos y Billeteras Virtuales</text>' +
+  '<text x="540" y="802" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="23" letter-spacing="2" fill="#C9A227">Recibimos en Ecuador en los bancos</text>' +
+  '<g transform="translate(540,854)">' + row1 + '</g>' +
+  '<g transform="translate(540,904)">' + row2 + '</g>' +
+  '<line x1="240" y1="958" x2="840" y2="958" stroke="url(#goldLine)" stroke-width="1"/>' +
+  '<text x="540" y="994" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="25" letter-spacing="9" fill="#E8C468">' + (noComision ? 'SIN COMISIONES' : 'SEGUI NUESTRAS COTIZACIONES DIARIAS') + '</text>' +
   '</svg>';
 }
   </script>
@@ -308,8 +287,6 @@ function buildSVG(state){
   <script>
     const rateInput = document.getElementById('rate');
     const percentInput = document.getElementById('percent');
-    const mayoristaCompraInput = document.getElementById('mayoristaCompra');
-    const percentMayoristaInput = document.getElementById('percentMayorista');
     const noComisionInput = document.getElementById('noComision');
     const stage = document.getElementById('stage');
     const statusEl = document.getElementById('status');
@@ -325,8 +302,6 @@ function buildSVG(state){
       return {
         rate: rateInput.value,
         percent: percentInput.value,
-        mayoristaCompra: mayoristaCompraInput.value,
-        percentMayorista: percentMayoristaInput.value,
         noComision: noComisionInput.checked
       };
     }
@@ -371,8 +346,6 @@ function buildSVG(state){
           const s = JSON.parse(raw);
           rateInput.value = s.rate || rateInput.value;
           percentInput.value = (s.percent !== undefined && s.percent !== null && s.percent !== '') ? s.percent : percentInput.value;
-          mayoristaCompraInput.value = s.mayoristaCompra || mayoristaCompraInput.value;
-          percentMayoristaInput.value = (s.percentMayorista !== undefined && s.percentMayorista !== null && s.percentMayorista !== '') ? s.percentMayorista : percentMayoristaInput.value;
           noComisionInput.checked = (s.noComision !== undefined) ? s.noComision : true;
         }
         const gh = localStorage.getItem('anuar-gh-config');
@@ -388,7 +361,7 @@ function buildSVG(state){
       loadFromURL();
     }
 
-    [rateInput, percentInput, mayoristaCompraInput, percentMayoristaInput, noComisionInput, ghOwner, ghRepo, ghBranch, ghPath, ghToken].forEach(function(el){
+    [rateInput, percentInput, noComisionInput, ghOwner, ghRepo, ghBranch, ghPath, ghToken].forEach(function(el){
       el.addEventListener('input', function(){ render(); scheduleSave(); });
       el.addEventListener('change', function(){ render(); scheduleSave(); });
     });
