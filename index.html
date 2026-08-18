@@ -159,26 +159,25 @@ function buildSVG({ rate, percent, noComision }){
 
   ${noComision ? `<text x="540" y="608" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="24" letter-spacing="9" fill="#E8C468">SIN COMISIONES</text>` : ``}
 
-  <g transform="translate(540,652)" stroke="#E8C468" stroke-width="1.5" fill="none" opacity="0.85">
+  <g transform="translate(540,682)" stroke="#E8C468" stroke-width="1.5" fill="none" opacity="0.85">
     <rect x="-8" y="-8" width="16" height="16" transform="rotate(45)"/>
     <line x1="-140" y1="0" x2="-24" y2="0"/>
     <line x1="24" y1="0" x2="140" y2="0"/>
   </g>
 
-  <text x="540" y="712" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="28" fill="#F5F1E8">En Argentina trabajamos con todos los</text>
-  <text x="540" y="750" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="28" fill="#F5F1E8">bancos y Billeteras Virtuales</text>
+  <text x="540" y="742" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="28" fill="#F5F1E8">En Argentina trabajamos con todos los</text>
+  <text x="540" y="780" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="28" fill="#F5F1E8">bancos y Billeteras Virtuales</text>
 
-  <text x="540" y="802" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="23" letter-spacing="2" fill="#C9A227">Recibimos en Ecuador en los bancos</text>
+  <text x="540" y="832" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="23" letter-spacing="2" fill="#C9A227">Recibimos en Ecuador en los bancos</text>
 
-  <g transform="translate(540,854)">
+  <g transform="translate(540,884)">
     ${ROW1_X.map((x,i)=>bankChip(x,0,BANKS[i])).join('')}
   </g>
-  <g transform="translate(540,904)">
+  <g transform="translate(540,934)">
     ${ROW2_X.map((x,i)=>bankChip(x,0,BANKS[i+3])).join('')}
   </g>
 
-  <line x1="240" y1="958" x2="840" y2="958" stroke="url(#goldLine)" stroke-width="1"/>
-  <text x="540" y="994" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="19" letter-spacing="4" fill="#C9A227">SEGUI NUESTRAS COTIZACIONES DIARIAS</text>
+
 </svg>`;
 }
 
