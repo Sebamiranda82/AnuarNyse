@@ -55,9 +55,7 @@ const MESES_ES = ["enero","febrero","marzo","abril","mayo","junio","julio",
 
 function todayLabel(){
   const d = new Date();
-  const dateStr = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'long', timeZone: 'America/Argentina/Buenos_Aires' }).format(d);
-  const timeStr = new Intl.DateTimeFormat('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Argentina/Buenos_Aires' }).format(d);
-  return `${dateStr} · ${timeStr} hs (ARG)`;
+  return new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'long', timeZone: 'America/Argentina/Buenos_Aires' }).format(d);
 }
 
 function formatARS(raw){
