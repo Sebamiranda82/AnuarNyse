@@ -240,7 +240,7 @@ function buildSVG(state){
     arFlagMini(-59,-3,23) +
     '<text x="0" y="9" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="32" fill="#8a7550">=</text>' +
     '<text x="30" y="9" text-anchor="start" font-family="Poppins" font-weight="500" font-size="32" fill="#F5F1E8">1 D\u00f3lar</text>' +
-    ecFlagMini(154,-3,23) +
+    ecFlagMini(197,-3,23) +
     '</g>';
 
   return '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">' +
@@ -265,11 +265,11 @@ function buildSVG(state){
   '</g>' +
   '<text x="540" y="200" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="66" letter-spacing="8" fill="url(#goldFoil)">ANUAR</text>' +
   '<line x1="140" y1="240" x2="940" y2="240" stroke="url(#goldLine)" stroke-width="1"/>' +
-  '<text x="540" y="300" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="27" letter-spacing="2" fill="#C9A227">Cotización · ' + dateStr + '</text>' +
+  '<text x="540" y="264" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="27" letter-spacing="2" fill="#C9A227">Cotización · ' + dateStr + '</text>' +
   '<text x="540" y="352" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="25" letter-spacing="4" fill="#F5F1E8">D\u00d3LAR ECUADOR</text>' +
   '<g transform="translate(540,432)">' + rateBlock(compraStr, ventaStr) + '</g>' +
   flagsLine +
-  (noComision ? '<text x="540" y="608" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="24" letter-spacing="9" fill="#E8C468">SIN COMISIONES</text>' : '') +
+  (noComision ? '<text x="540" y="644" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="24" letter-spacing="9" fill="#E8C468">SIN COMISIONES</text>' : '') +
   '<g transform="translate(540,682)" stroke="#E8C468" stroke-width="1.5" fill="none" opacity="0.85">' +
     '<rect x="-8" y="-8" width="16" height="16" transform="rotate(45)"/>' +
     '<line x1="-140" y1="0" x2="-24" y2="0"/><line x1="24" y1="0" x2="140" y2="0"/>' +
