@@ -235,9 +235,9 @@ function buildSVG(state){
   const row1 = ROW1_X.map(function(x,i){ return bankChip(x,0,BANKS[i]); }).join('');
   const row2 = ROW2_X.map(function(x,i){ return bankChip(x,0,BANKS[i+3]); }).join('');
 
-  const flagsLine = '<text x="540" y="522" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="27" fill="#F5F1E8">Transferimos a cuentas Argentina DOLARES</text>' +
-    '<text x="540" y="560" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="27" fill="#F5F1E8">y recibimos en Ecuador DOLARES.</text>' +
-    '<text x="540" y="604" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="34" letter-spacing="4" fill="url(#goldFoil)">1 = 1</text>';
+  const flagsLine = '<text x="540" y="522" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="27" fill="#F5F1E8">Transferimos DOLARES a Argentina \uD83C\uDDE6\uD83C\uDDF7</text>' +
+    '<text x="540" y="560" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="27" fill="#F5F1E8">y recibimos DOLARES en Ecuador \uD83C\uDDEA\uD83C\uDDE8</text>' +
+    '<text x="540" y="604" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="34" letter-spacing="4" fill="url(#goldFoil)">1=1</text>';
 
   return '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">' +
   '<defs>' +
