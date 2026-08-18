@@ -106,6 +106,8 @@ function buildSVG({ rate, percent, noComision }){
 
   <g transform="translate(540,548)"><text x="-93" y="9" text-anchor="end" font-family="Poppins" font-weight="500" font-size="32" fill="#F5F1E8">1 Dólar</text><g transform="translate(-59,-3)"><circle r="23" fill="#0a0908" stroke="url(#goldFoil)" stroke-width="2"/><clipPath id="clipARmini"><circle r="19"/></clipPath><g clip-path="url(#clipARmini)"><rect x="-23" y="-23" width="46" height="15.333333333333334" fill="#74ACDF"/><rect x="-23" y="-7.666666666666667" width="46" height="15.333333333333334" fill="#FFFFFF"/><rect x="-23" y="7.666666666666667" width="46" height="15.333333333333334" fill="#74ACDF"/><circle r="6.44" fill="#F6B40E" stroke="#85340A" stroke-width="0.8"/></g></g><text x="0" y="9" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="32" fill="#8a7550">=</text><text x="30" y="9" text-anchor="start" font-family="Poppins" font-weight="500" font-size="32" fill="#F5F1E8">1 Dólar</text><g transform="translate(154,-3)"><circle r="23" fill="#0a0908" stroke="url(#goldFoil)" stroke-width="2"/><clipPath id="clipECmini"><circle r="19"/></clipPath><g clip-path="url(#clipECmini)"><rect x="-23" y="-23" width="46" height="23" fill="#FFD100"/><rect x="-23" y="0" width="46" height="11.5" fill="#0F47AF"/><rect x="-23" y="11.5" width="46" height="11.5" fill="#EF3340"/><circle r="6.9" fill="#FFFFFF" stroke="#3A3A3A" stroke-width="0.6"/></g></g></g>
 
+  ${noComision ? `<text x="540" y="608" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="24" letter-spacing="9" fill="#E8C468">SIN COMISIONES</text>` : ``}
+
   <g transform="translate(540,652)" stroke="#E8C468" stroke-width="1.5" fill="none" opacity="0.85">
     <rect x="-8" y="-8" width="16" height="16" transform="rotate(45)"/>
     <line x1="-140" y1="0" x2="-24" y2="0"/>
@@ -125,6 +127,6 @@ function buildSVG({ rate, percent, noComision }){
   </g>
 
   <line x1="240" y1="958" x2="840" y2="958" stroke="url(#goldLine)" stroke-width="1"/>
-  <text x="540" y="994" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="25" letter-spacing="9" fill="#E8C468">${noComision ? 'SIN COMISIONES' : 'SEGUI NUESTRAS COTIZACIONES DIARIAS'}</text>
+  <text x="540" y="994" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="19" letter-spacing="4" fill="#C9A227">SEGUI NUESTRAS COTIZACIONES DIARIAS</text>
 </svg>`;
 }
