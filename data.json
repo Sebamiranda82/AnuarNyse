@@ -1,5 +1,9 @@
 {
-  "rate": "1550",
-  "percent": "3.5",
-  "noComision": true
+  "rate": "1540",
+  "percent": 3,
+  "noComision": true,
+  "promo": {
+    "rate": "1555",
+    "banks": ["internacional", "pacifico", "bolivariano"]
+  }
 }
