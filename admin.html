@@ -24,8 +24,16 @@
     display:flex; gap:32px; align-items:flex-start; width:100%; max-width:1100px;
     flex-wrap:wrap; justify-content:center;
   }
-  .preview-wrap{ flex:0 0 auto; width:min(90vw,460px); position:sticky; top:24px; }
+  .preview-wrap{ flex:0 0 auto; width:min(90vw,460px); position:sticky; top:24px; display:flex; flex-direction:column; gap:16px; }
   #stage{ width:100%; aspect-ratio:1/1; border-radius:6px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.55); }
+  #stagePromo{ width:100%; aspect-ratio:1/1; border-radius:6px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.55); }
+  #stagePromo svg{ width:100%; height:100%; display:block; }
+  .preview-label{ font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:#8a8a8c; margin:0 0 -8px; }
+  .bank-check-list{ display:flex; flex-direction:column; gap:8px; }
+  .bank-check{ display:flex; align-items:center; gap:10px; background:#0d0d0e; border:1px solid #333336; border-radius:8px; padding:9px 12px; }
+  .bank-check input{ width:16px; height:16px; accent-color: var(--gold-2); }
+  .bank-check label{ margin:0; text-transform:none; letter-spacing:0; font-size:14px; color:var(--cream); cursor:pointer; }
+  .section-title{ font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--gold-5); padding-top:16px; border-top:1px solid var(--panel-border); }
   #stage svg{ width:100%; height:100%; display:block; }
 
   .panel{
@@ -80,7 +88,10 @@
 
   <div class="layout">
     <div class="preview-wrap">
+      <div class="preview-label">Cotización</div>
       <div id="stage"></div>
+      <div class="preview-label">Promo del día</div>
+      <div id="stagePromo"></div>
     </div>
 
     <div class="panel">
@@ -105,6 +116,23 @@
 
       <button id="publishBtn">Publicar cotización</button>
       <div class="status" id="status"></div>
+
+      <div class="section-title" style="margin-top:22px;">Promo del día</div>
+      <div class="field">
+        <label for="promoRate">Cambio promocional (ARS = 1 USD)</label>
+        <input type="text" id="promoRate" inputmode="numeric" value="1555">
+      </div>
+      <div class="field">
+        <label>Solo para bancos</label>
+        <div class="bank-check-list">
+          <div class="bank-check"><input type="checkbox" id="bank-pichincha"><label for="bank-pichincha">Pichincha</label></div>
+          <div class="bank-check"><input type="checkbox" id="bank-guayaquil"><label for="bank-guayaquil">Guayaquil</label></div>
+          <div class="bank-check"><input type="checkbox" id="bank-internacional" checked><label for="bank-internacional">Internacional</label></div>
+          <div class="bank-check"><input type="checkbox" id="bank-pacifico" checked><label for="bank-pacifico">Pacífico</label></div>
+          <div class="bank-check"><input type="checkbox" id="bank-bolivariano" checked><label for="bank-bolivariano">Bolivariano</label></div>
+        </div>
+      </div>
+      <button id="downloadPromoPng" style="background:#232326; color:var(--cream); border:1px solid #3a3a3d;">Descargar imagen promo</button>
 
       <button id="downloadPng">Descargar imagen para Instagram</button>
       <button id="downloadJson">o descargar data.json manualmente</button>
@@ -277,6 +305,120 @@ function buildSVG(state){
   '<g transform="translate(540,934)">' + row2 + '</g>' +
   '</svg>';
 }
+
+// ANUAR NYSE — promo render logic
+
+const ALL_BANKS = {
+  pichincha:     { name: "Pichincha",     color: "#FFC72C" },
+  guayaquil:     { name: "Guayaquil",     color: "#E6007E" },
+  internacional: { name: "Internacional", color: "#FFC72C" },
+  pacifico:      { name: "Pacífico",      color: "#1565C0" },
+  bolivariano:   { name: "Bolivariano",   color: "#2FB6A6" },
+};
+
+const MESES_ES_PROMO = ["enero","febrero","marzo","abril","mayo","junio","julio",
+  "agosto","septiembre","octubre","noviembre","diciembre"];
+
+function formatARSPromo(raw){
+  const digits = String(raw || '').replace(/[^\d]/g,'');
+  if(!digits) return '$0';
+  return '$' + digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+function promoBankIcon(x, y, color){
+  return `
+    <g transform="translate(${x},${y})" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M-9,-8 L0,-13 L9,-8 Z" fill="${color}" stroke="none"/>
+      <line x1="-9" y1="-8" x2="-9" y2="6"/>
+      <line x1="-4.3" y1="-8" x2="-4.3" y2="6"/>
+      <line x1="4.3" y1="-8" x2="4.3" y2="6"/>
+      <line x1="9" y1="-8" x2="9" y2="6"/>
+      <line x1="-11" y1="6" x2="11" y2="6"/>
+      <line x1="-11" y1="9" x2="11" y2="9"/>
+    </g>`;
+}
+
+function promoBankChip(x, y, bank){
+  return `
+    <g transform="translate(${x},${y})">
+      ${promoBankIcon(0,0,bank.color)}
+      <text x="18" y="6" text-anchor="start" font-family="Poppins" font-weight="400" font-size="34" fill="#F5F1E8">${bank.name}</text>
+    </g>`;
+}
+
+// Layout x-offsets for up to 3 banks in a single centered row (tuned per count)
+const PROMO_ROW_LAYOUTS = {
+  1: [0],
+  2: [-160, 160],
+  3: [-330, -30, 290],
+};
+
+function buildPromoSVG({ promoRate, promoBanks }){
+  const rateStr = formatARSPromo(promoRate);
+  const bankKeys = (promoBanks && promoBanks.length) ? promoBanks : ['internacional','bolivariano','pacifico'];
+  const banks = bankKeys.map(k => ALL_BANKS[k]).filter(Boolean);
+  const positions = PROMO_ROW_LAYOUTS[banks.length] || PROMO_ROW_LAYOUTS[3];
+  const bankRow = banks.map((b,i) => promoBankChip(positions[i] || 0, 0, b)).join('');
+
+  return `
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#141210"/>
+      <stop offset="55%" stop-color="#0a0908"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </radialGradient>
+    <linearGradient id="goldFoil" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F3D98B"/>
+      <stop offset="30%" stop-color="#C9A227"/>
+      <stop offset="55%" stop-color="#F6E3A1"/>
+      <stop offset="80%" stop-color="#B8901E"/>
+      <stop offset="100%" stop-color="#E8C468"/>
+    </linearGradient>
+    <linearGradient id="goldLine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8a6c1a" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#E8C468"/>
+      <stop offset="100%" stop-color="#8a6c1a" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1080" height="1080" fill="url(#bgGlow)"/>
+  <rect x="66" y="66" width="948" height="948" fill="none" stroke="#B8901E" stroke-width="1.5" opacity="0.55"/>
+  <rect x="78" y="78" width="924" height="924" fill="none" stroke="#E8C468" stroke-width="1" opacity="0.35"/>
+  <g stroke="#E8C468" stroke-width="2" opacity="0.8">
+    <path d="M66 110 L66 66 L110 66"/>
+    <path d="M970 66 L1014 66 L1014 110"/>
+    <path d="M1014 970 L1014 1014 L970 1014"/>
+    <path d="M110 1014 L66 1014 L66 970"/>
+  </g>
+
+  <text x="540" y="185" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="58" letter-spacing="7" fill="url(#goldFoil)">ANUAR</text>
+  <line x1="140" y1="220" x2="940" y2="220" stroke="url(#goldLine)" stroke-width="1"/>
+
+  <g transform="translate(540,290)">
+    <line x1="-230" y1="0" x2="-140" y2="0" stroke="url(#goldLine)" stroke-width="1.5"/>
+    <text x="0" y="8" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="32" letter-spacing="3" fill="url(#goldFoil)">CAMBIO PROMOCIONAL DEL DÍA</text>
+    <line x1="140" y1="0" x2="230" y2="0" stroke="url(#goldLine)" stroke-width="1.5"/>
+  </g>
+
+  <g transform="translate(540,320)" stroke="#E8C468" stroke-width="1.4" fill="none" opacity="0.85">
+    <rect x="-8" y="-8" width="16" height="16" transform="rotate(45)"/>
+  </g>
+
+  <g transform="translate(540,540)">
+    <rect x="-380" y="-160" width="760" height="320" rx="24" fill="none" stroke="url(#goldFoil)" stroke-width="2" opacity="0.5"/>
+    <text x="0" y="0" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="150" fill="url(#goldFoil)">${rateStr}</text>
+    <text x="0" y="105" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="42" letter-spacing="4" fill="#F5F1E8">= 1 USD ECUADOR</text>
+  </g>
+
+  <text x="540" y="792" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="35" letter-spacing="2" fill="#C9A227">Solo para Bancos</text>
+
+  <g transform="translate(540,860)">
+    ${bankRow}
+  </g>
+</svg>`;
+}
+
   </script>
 
   <script>
@@ -286,6 +428,16 @@ function buildSVG(state){
     const stage = document.getElementById('stage');
     const statusEl = document.getElementById('status');
 
+    const promoRateInput = document.getElementById('promoRate');
+    const stagePromo = document.getElementById('stagePromo');
+    const bankCheckboxes = {
+      pichincha: document.getElementById('bank-pichincha'),
+      guayaquil: document.getElementById('bank-guayaquil'),
+      internacional: document.getElementById('bank-internacional'),
+      pacifico: document.getElementById('bank-pacifico'),
+      bolivariano: document.getElementById('bank-bolivariano'),
+    };
+
     const ghOwner = document.getElementById('ghOwner');
     const ghRepo = document.getElementById('ghRepo');
     const ghBranch = document.getElementById('ghBranch');
@@ -293,16 +445,26 @@ function buildSVG(state){
     const ghToken = document.getElementById('ghToken');
     const publishBtn = document.getElementById('publishBtn');
 
+    function selectedPromoBanks(){
+      return Object.keys(bankCheckboxes).filter(function(k){ return bankCheckboxes[k].checked; });
+    }
+
     function currentState(){
       return {
         rate: rateInput.value,
         percent: percentInput.value,
-        noComision: noComisionInput.checked
+        noComision: noComisionInput.checked,
+        promo: {
+          rate: promoRateInput.value,
+          banks: selectedPromoBanks()
+        }
       };
     }
 
     function render(){
-      stage.innerHTML = buildSVG(currentState());
+      const state = currentState();
+      stage.innerHTML = buildSVG(state);
+      stagePromo.innerHTML = buildPromoSVG({ promoRate: state.promo.rate, promoBanks: state.promo.banks });
     }
 
     let saveTimer;
@@ -342,6 +504,14 @@ function buildSVG(state){
           rateInput.value = s.rate || rateInput.value;
           percentInput.value = (s.percent !== undefined && s.percent !== null && s.percent !== '') ? s.percent : percentInput.value;
           noComisionInput.checked = (s.noComision !== undefined) ? s.noComision : true;
+          if(s.promo){
+            promoRateInput.value = s.promo.rate || promoRateInput.value;
+            if(s.promo.banks && s.promo.banks.length){
+              Object.keys(bankCheckboxes).forEach(function(k){
+                bankCheckboxes[k].checked = s.promo.banks.indexOf(k) !== -1;
+              });
+            }
+          }
         }
         const gh = localStorage.getItem('anuar-gh-config');
         if(gh){
@@ -356,7 +526,9 @@ function buildSVG(state){
       loadFromURL();
     }
 
-    [rateInput, percentInput, noComisionInput, ghOwner, ghRepo, ghBranch, ghPath, ghToken].forEach(function(el){
+    [rateInput, percentInput, noComisionInput, promoRateInput,
+     bankCheckboxes.pichincha, bankCheckboxes.guayaquil, bankCheckboxes.internacional, bankCheckboxes.pacifico, bankCheckboxes.bolivariano,
+     ghOwner, ghRepo, ghBranch, ghPath, ghToken].forEach(function(el){
       el.addEventListener('input', function(){ render(); scheduleSave(); });
       el.addEventListener('change', function(){ render(); scheduleSave(); });
     });
@@ -451,6 +623,29 @@ function buildSVG(state){
         canvas.toBlob(function(blob){
           const link = document.createElement('a');
           link.download = 'anuar-cotizacion-' + rateInput.value + '.png';
+          link.href = URL.createObjectURL(blob);
+          link.click();
+        }, 'image/png');
+      };
+      img.src = url;
+    });
+
+    document.getElementById('downloadPromoPng').addEventListener('click', async function(){
+      await document.fonts.ready;
+      const state = currentState();
+      const svgString = buildPromoSVG({ promoRate: state.promo.rate, promoBanks: state.promo.banks });
+      const svgBlob = new Blob([svgString], {type:'image/svg+xml;charset=utf-8'});
+      const url = URL.createObjectURL(svgBlob);
+      const img = new Image();
+      img.onload = function(){
+        const canvas = document.createElement('canvas');
+        canvas.width = 1080; canvas.height = 1080;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, 1080, 1080);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(function(blob){
+          const link = document.createElement('a');
+          link.download = 'anuar-promo-' + promoRateInput.value + '.png';
           link.href = URL.createObjectURL(blob);
           link.click();
         }, 'image/png');
