@@ -57,19 +57,37 @@ function promoBankChip(x, y, bank){
     </g>`;
 }
 
-// Layout x-offsets for up to 3 banks in a single centered row (tuned per count)
-const PROMO_ROW_LAYOUTS = {
-  1: [0],
-  2: [-160, 160],
-  3: [-330, -30, 290],
-};
+// Dynamically measure each bank name so the row can be centered evenly,
+// regardless of which banks/how many are selected.
+function measureTextWidthPromo(text, font){
+  if (typeof document === 'undefined') return text.length * 17.5;
+  const canvas = measureTextWidthPromo._c || (measureTextWidthPromo._c = document.createElement('canvas'));
+  const ctx = canvas.getContext('2d');
+  ctx.font = font;
+  return ctx.measureText(text).width;
+}
+
+function layoutPromoBankRow(banks){
+  const gap = 46;
+  const iconLeft = 11;
+  const textStart = 18;
+  const widths = banks.map(b => iconLeft + textStart + measureTextWidthPromo(b.name, '400 34px Poppins'));
+  const total = widths.reduce((a,w) => a + w, 0) + gap * Math.max(0, banks.length - 1);
+  let cursor = -total / 2;
+  const positions = [];
+  widths.forEach(w => {
+    positions.push(cursor + iconLeft);
+    cursor += w + gap;
+  });
+  return positions;
+}
 
 function buildPromoSVG({ promoRate, promoBanks }){
   const rateStr = formatARSPromo(promoRate);
   const bankKeys = (promoBanks && promoBanks.length) ? promoBanks : ['internacional','bolivariano','pacifico'];
   const banks = bankKeys.map(k => ALL_BANKS[k]).filter(Boolean);
-  const positions = PROMO_ROW_LAYOUTS[banks.length] || PROMO_ROW_LAYOUTS[3];
-  const bankRow = banks.map((b,i) => promoBankChip(positions[i] || 0, 0, b)).join('');
+  const positions = layoutPromoBankRow(banks);
+  const bankRow = banks.map((b,i) => promoBankChip(positions[i], 0, b)).join('');
 
   return `
 <svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
