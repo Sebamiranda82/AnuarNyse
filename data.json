@@ -1,10 +1,18 @@
 {
-  "rate": "1540",
-  "percent": 3,
+  "rate": "1555",
+  "percent": "3",
   "noComision": true,
-  "banks": ["pichincha", "guayaquil", "internacional", "pacifico", "bolivariano"],
+  "banks": [
+    "internacional",
+    "pacifico",
+    "bolivariano"
+  ],
   "promo": {
     "rate": "1555",
-    "banks": ["internacional", "pacifico", "bolivariano"]
+    "banks": [
+      "internacional",
+      "pacifico",
+      "bolivariano"
+    ]
   }
 }
