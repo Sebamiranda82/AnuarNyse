@@ -1,12 +1,13 @@
 // ANUAR NYSE — shared render logic
 
-const BANKS = [
-  { name: "Pichincha",     color: "#FFC72C" },
-  { name: "Guayaquil",     color: "#E6007E" },
-  { name: "Internacional", color: "#FFC72C" },
-  { name: "Pacífico",      color: "#1565C0" },
-  { name: "Bolivariano",   color: "#2FB6A6" },
-];
+const ALL_BANKS_MAIN = {
+  pichincha:     { name: "Pichincha",     color: "#FFC72C" },
+  guayaquil:     { name: "Guayaquil",     color: "#E6007E" },
+  internacional: { name: "Internacional", color: "#FFC72C" },
+  pacifico:      { name: "Pacífico",      color: "#1565C0" },
+  bolivariano:   { name: "Bolivariano",   color: "#2FB6A6" },
+};
+const DEFAULT_MAIN_BANKS = ['pichincha','guayaquil','internacional','pacifico','bolivariano'];
 
 const MESES_ES = ["enero","febrero","marzo","abril","mayo","junio","julio",
   "agosto","septiembre","octubre","noviembre","diciembre"];
@@ -43,8 +44,27 @@ function bankChip(x, y, bank){
     </g>`;
 }
 
-const ROW1_X = [-317, -77, 133];
-const ROW2_X = [-195, 35];
+// Dynamically measure each bank name so rows stay centered regardless of selection
+function measureTextWidthMain(text, font){
+  if (typeof document === 'undefined') return text.length * 12.5;
+  const canvas = measureTextWidthMain._c || (measureTextWidthMain._c = document.createElement('canvas'));
+  const ctx = canvas.getContext('2d');
+  ctx.font = font;
+  return ctx.measureText(text).width;
+}
+
+function layoutMainBankRow(bankObjs){
+  const gap = 40, iconLeft = 11, textStart = 18;
+  const widths = bankObjs.map(b => iconLeft + textStart + measureTextWidthMain(b.name, '400 24px Poppins'));
+  const total = widths.reduce((a,w) => a + w, 0) + gap * Math.max(0, bankObjs.length - 1);
+  let cursor = -total / 2;
+  const positions = [];
+  widths.forEach(w => {
+    positions.push(cursor + iconLeft);
+    cursor += w + gap;
+  });
+  return positions;
+}
 
 function rateBlock(compraStr, ventaStr){
   return `
@@ -55,12 +75,28 @@ function rateBlock(compraStr, ventaStr){
     <text x="170" y="6" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="64" fill="url(#goldFoil)">${ventaStr}</text>`;
 }
 
-function buildSVG({ rate, percent, noComision }){
+function buildSVG({ rate, percent, noComision, banks }){
   const pct = (percent === undefined || percent === null || percent === '') ? 3 : parseFloat(percent);
   const compraStr = formatARS(rate);
   const ventaNum = Math.round(parseInt(String(rate||'0').replace(/[^\d]/g,''),10) * (1 + pct/100));
   const ventaStr = formatARS(ventaNum);
   const dateStr = todayLabel();
+
+  const bankKeys = (banks && banks.length) ? banks : DEFAULT_MAIN_BANKS;
+  const bankObjs = bankKeys.map(k => ALL_BANKS_MAIN[k]).filter(Boolean);
+  let bankRowsSVG = '';
+  if(bankObjs.length <= 3){
+    const pos = layoutMainBankRow(bankObjs);
+    bankRowsSVG = `<g transform="translate(540,909)">${bankObjs.map((b,i)=>bankChip(pos[i],0,b)).join('')}</g>`;
+  } else {
+    const split = Math.ceil(bankObjs.length / 2);
+    const row1Banks = bankObjs.slice(0, split);
+    const row2Banks = bankObjs.slice(split);
+    const pos1 = layoutMainBankRow(row1Banks);
+    const pos2 = layoutMainBankRow(row2Banks);
+    bankRowsSVG = `<g transform="translate(540,884)">${row1Banks.map((b,i)=>bankChip(pos1[i],0,b)).join('')}</g>
+  <g transform="translate(540,934)">${row2Banks.map((b,i)=>bankChip(pos2[i],0,b)).join('')}</g>`;
+  }
 
   return `
 <svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
@@ -121,12 +157,7 @@ function buildSVG({ rate, percent, noComision }){
 
   <text x="540" y="832" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="23" letter-spacing="2" fill="#C9A227">Recibimos en Ecuador en los bancos</text>
 
-  <g transform="translate(540,884)">
-    ${ROW1_X.map((x,i)=>bankChip(x,0,BANKS[i])).join('')}
-  </g>
-  <g transform="translate(540,934)">
-    ${ROW2_X.map((x,i)=>bankChip(x,0,BANKS[i+3])).join('')}
-  </g>
+  ${bankRowsSVG}
 
 
 </svg>`;
