@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- ANUAR NYSE admin v2.5 (20/11/2026): "Descargar imagenes" baja 2 PNG: completa y solo Compra (centrado y mas grande). v2.4: el cartel ya no está duplicado: se carga desde render.js (fuente única, compartida con index.html). v2.3: la bandera de Ecuador lleva el escudo (version vectorial simplificada). v2.2: banderas del bloque de transferencias al doble de tamaño (radio 48). v2.1: titulo ANUAR CAMBIOS; bloque unico "Transferencias internacionales sin comision" con banderas; bancos y "Recibimos" un tamaño mas grande. v2.0: cartel con fondo blanco, "DOLAR" en verde, y linea "Ahorra en transferencia" con banderas EC y AR. v1.9: se quita la linea "1 Dolar = 1 Dolar" del cartel. v1.8: CORRECCION: al vender USDT en Ecuador se recibe USD = USDT / DolarBinance (no multiplicar). Venta = PesosBinance x DolarBinance x (1+g). v1.7: Venta independiente del blue; el importe en ARS para filtrar ofertas usa el precio de Pesos Binance (no el blue); el cuadro muestra el ejemplo completo con el importe. v1.6: si el navegador bloquea Binance (CORS), usa /api/p2p del servidor local servidor_panel.py (abrir el panel en http://localhost:8080/admin.html). v1.5: Dolar Binance filtra por bancos (Pichincha, Internacional, Pacifico, Bolivariano) e importe a operar (rango min/max de la oferta). v1.4: + Traer en Dolar Binance (P2P fiat USD, lado SELL = vender USDT por dolares). v1.3.1: en celular la vista previa ya no queda fija encima del formulario. v1.3: + botones Traer (blue desde dolarapi.com, Pesos Binance desde P2P BUY con fallback spot). v1.2: Venta calculada = (ARS Binance / USD Binance) x (1+ganancia%). Compra se precarga con el dolar blue. Campos de mercado solo en localStorage; en data.json se publica solo rate/percent/noComision (percent = markup efectivo sobre Compra) -->
+<!-- ANUAR NYSE admin v2.6 (20/11/2026): dos botones de descarga separados (una imagen por toque) para evitar el aviso de "varias descargas" de Chrome. v2.5: "Descargar imagenes" baja 2 PNG: completa y solo Compra (centrado y mas grande). v2.4: el cartel ya no está duplicado: se carga desde render.js (fuente única, compartida con index.html). v2.3: la bandera de Ecuador lleva el escudo (version vectorial simplificada). v2.2: banderas del bloque de transferencias al doble de tamaño (radio 48). v2.1: titulo ANUAR CAMBIOS; bloque unico "Transferencias internacionales sin comision" con banderas; bancos y "Recibimos" un tamaño mas grande. v2.0: cartel con fondo blanco, "DOLAR" en verde, y linea "Ahorra en transferencia" con banderas EC y AR. v1.9: se quita la linea "1 Dolar = 1 Dolar" del cartel. v1.8: CORRECCION: al vender USDT en Ecuador se recibe USD = USDT / DolarBinance (no multiplicar). Venta = PesosBinance x DolarBinance x (1+g). v1.7: Venta independiente del blue; el importe en ARS para filtrar ofertas usa el precio de Pesos Binance (no el blue); el cuadro muestra el ejemplo completo con el importe. v1.6: si el navegador bloquea Binance (CORS), usa /api/p2p del servidor local servidor_panel.py (abrir el panel en http://localhost:8080/admin.html). v1.5: Dolar Binance filtra por bancos (Pichincha, Internacional, Pacifico, Bolivariano) e importe a operar (rango min/max de la oferta). v1.4: + Traer en Dolar Binance (P2P fiat USD, lado SELL = vender USDT por dolares). v1.3.1: en celular la vista previa ya no queda fija encima del formulario. v1.3: + botones Traer (blue desde dolarapi.com, Pesos Binance desde P2P BUY con fallback spot). v1.2: Venta calculada = (ARS Binance / USD Binance) x (1+ganancia%). Compra se precarga con el dolar blue. Campos de mercado solo en localStorage; en data.json se publica solo rate/percent/noComision (percent = markup efectivo sobre Compra) -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -54,6 +54,7 @@
   }
   #publishBtn{ background:linear-gradient(120deg,var(--gold-1),var(--gold-2) 50%,var(--gold-5)); color:#1a1408; }
   #publishBtn:disabled{ opacity:.55; cursor:not-allowed; }
+  #downloadCompra{ background:#232326; color:var(--cream); border:1px solid #3a3a3d; }
   #downloadPng{ background:#232326; color:var(--cream); border:1px solid #3a3a3d; }
   #downloadJson{ background:transparent; color:#8a8a8c; border:1px solid #2a2a2c; font-weight:500; }
   .status{ font-size:13px; min-height:18px; margin-top:10px; text-align:center; }
@@ -161,7 +162,8 @@
       <button id="publishBtn">Publicar cotización</button>
       <div class="status" id="status"></div>
 
-      <button id="downloadPng">Descargar imágenes para Instagram (2)</button>
+      <button id="downloadPng">Descargar imagen completa (Compra y Venta)</button>
+      <button id="downloadCompra">Descargar imagen solo Compra</button>
       <button id="downloadJson">o descargar data.json manualmente</button>
 
       <details id="ghDetails">
@@ -599,17 +601,17 @@
       setTimeout(function(){ URL.revokeObjectURL(link.href); }, 4000);
     }
 
-    // Descarga 2 imágenes: la completa (Compra y Venta) y otra solo con el precio de Compra
-    document.getElementById('downloadPng').addEventListener('click', async function(){
+    // Una imagen por toque (evita el aviso de Chrome "descargar varios archivos")
+    async function descargarCartel(opts, prefijo){
       try{
         await document.fonts.ready;
-        const st = currentState(), precio = rateInput.value;
-        bajarBlob(await svgAPng(buildSVG(st)), 'anuar-cotizacion-' + precio + '.png');
-        await new Promise(function(r){ setTimeout(r, 700); });
-        bajarBlob(await svgAPng(buildSVG(st, { soloCompra: true })), 'anuar-compra-' + precio + '.png');
-        setStatus('Se descargaron 2 imágenes: cotización completa y solo Compra ✓', 'ok');
-      }catch(e){ setStatus('No se pudieron generar las imágenes: ' + e.message, 'err'); }
-    });
+        const precio = rateInput.value;
+        bajarBlob(await svgAPng(buildSVG(currentState(), opts)), prefijo + '-' + precio + '.png');
+        setStatus('Imagen descargada ✓', 'ok');
+      }catch(e){ setStatus('No se pudo generar la imagen: ' + e.message, 'err'); }
+    }
+    document.getElementById('downloadPng').addEventListener('click', function(){ descargarCartel(undefined, 'anuar-cotizacion'); });
+    document.getElementById('downloadCompra').addEventListener('click', function(){ descargarCartel({ soloCompra: true }, 'anuar-compra'); });
 
     document.getElementById('downloadJson').addEventListener('click', function(){
       const data = currentState();
