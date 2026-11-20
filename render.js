@@ -1,4 +1,4 @@
-// ANUAR NYSE — shared render logic
+// ANUAR NYSE — shared render logic  (v2.4 · FUENTE ÚNICA del cartel: lo cargan index.html y admin.html con <script src="render.js">)
 
 const BANKS = [
   { name: "Pichincha",     color: "#E0A100" },
