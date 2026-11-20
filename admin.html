@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- ANUAR NYSE admin v1.2 (20/11/2026): Venta calculada = (ARS Binance / USD Binance) x (1+ganancia%). Compra se precarga con el dolar blue. Campos de mercado solo en localStorage; en data.json se publica solo rate/percent/noComision (percent = markup efectivo sobre Compra) -->
+<!-- ANUAR NYSE admin v1.3 (20/11/2026): + botones Traer (blue desde dolarapi.com, Pesos Binance desde P2P BUY con fallback spot). v1.2: Venta calculada = (ARS Binance / USD Binance) x (1+ganancia%). Compra se precarga con el dolar blue. Campos de mercado solo en localStorage; en data.json se publica solo rate/percent/noComision (percent = markup efectivo sobre Compra) -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -73,6 +73,12 @@
   .mercado{ border:1px dashed #3a3a3d; border-radius:10px; padding:14px 14px 4px; margin-bottom:18px; }
   .mercado .mtitle{ font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--gold-2); margin-bottom:14px; }
   .mercado .mnote{ font-size:11px; color:#8a8a8c; margin:-6px 0 12px; }
+  .rowfetch{ display:flex; gap:8px; }
+  .rowfetch input{ flex:1; min-width:0; }
+  .rowfetch button{ width:auto; margin:0; padding:0 16px; background:#232326; color:var(--gold-1); border:1px solid #3a3a3d; font-size:13px; }
+  .rowfetch button:disabled{ opacity:.5; }
+  .mfetch{ font-size:12px; min-height:16px; margin:-4px 0 12px; line-height:1.5; }
+  .mfetch.ok{ color:#7fbf7f; } .mfetch.err{ color:#e2857a; } .mfetch.busy{ color:#b8b8ba; }
   .mcalc{ font-size:13px; line-height:1.7; background:#0d0d0e; border:1px solid #2a2a2c; border-radius:8px; padding:10px 12px; margin-bottom:14px; color:#b8b8ba; }
   .mcalc b{ color:var(--gold-1); }
   input[readonly]{ opacity:.7; }
@@ -114,7 +120,10 @@
         <div class="mtitle">Referencias de mercado · internas</div>
         <div class="field">
           <label for="mBlue">Dólar blue (ARS)</label>
-          <input type="text" id="mBlue" inputmode="decimal" placeholder="ej: 1480">
+          <div class="rowfetch">
+            <input type="text" id="mBlue" inputmode="decimal" placeholder="ej: 1480">
+            <button type="button" id="btnBlue">Traer</button>
+          </div>
         </div>
         <div class="field">
           <label for="mUsdBinance">Dólar Binance (USD por USDT)</label>
@@ -122,8 +131,16 @@
         </div>
         <div class="field">
           <label for="mArsBinance">Pesos Binance (ARS por USDT)</label>
-          <input type="text" id="mArsBinance" inputmode="decimal" placeholder="ej: 1520">
+          <div class="rowfetch">
+            <input type="text" id="mArsBinance" inputmode="decimal" placeholder="ej: 1520">
+            <button type="button" id="btnBinance">Traer</button>
+          </div>
         </div>
+        <div class="field">
+          <label for="mMonto">Monto de tus compras (ARS, opcional)</label>
+          <input type="text" id="mMonto" inputmode="numeric" placeholder="filtra ofertas, ej: 500000">
+        </div>
+        <div class="mfetch" id="mFetch"></div>
         <div class="field">
           <label for="mGain">Ganancia deseada (%)</label>
           <input type="text" id="mGain" inputmode="decimal" value="3">
@@ -332,6 +349,10 @@ function buildSVG(state){
     const mArsBinance = document.getElementById('mArsBinance');
     const mGain = document.getElementById('mGain');
     const mCalc = document.getElementById('mCalc');
+    const mMonto = document.getElementById('mMonto');
+    const mFetch = document.getElementById('mFetch');
+    const btnBlue = document.getElementById('btnBlue');
+    const btnBinance = document.getElementById('btnBinance');
 
     // "1.520" -> 1520 (miles con punto) ; "1520,5" -> 1520.5 ; "1.025" (USD) se lee como decimal con parseDec
     function parseARS(v){
@@ -388,7 +409,7 @@ function buildSVG(state){
             path: ghPath.value, token: ghToken.value
           }));
           localStorage.setItem('anuar-admin-mercado', JSON.stringify({
-            blue: mBlue.value, usdBinance: mUsdBinance.value, arsBinance: mArsBinance.value, gain: mGain.value
+            blue: mBlue.value, usdBinance: mUsdBinance.value, arsBinance: mArsBinance.value, gain: mGain.value, monto: mMonto.value
           }));
         }catch(e){}
       }, 400);
@@ -425,6 +446,7 @@ function buildSVG(state){
           mUsdBinance.value = m.usdBinance || '';
           mArsBinance.value = m.arsBinance || '';
           mGain.value = (m.gain !== undefined && m.gain !== '') ? m.gain : '3';
+          mMonto.value = m.monto || '';
         }
         const gh = localStorage.getItem('anuar-gh-config');
         if(gh){
@@ -444,7 +466,7 @@ function buildSVG(state){
       el.addEventListener('change', function(){ render(); scheduleSave(); });
     });
 
-    [mBlue, mUsdBinance, mArsBinance, mGain].forEach(function(el){
+    [mBlue, mUsdBinance, mArsBinance, mGain, mMonto].forEach(function(el){
       el.addEventListener('input', function(){
         if(el === mBlue){
           const b = parseARS(mBlue.value);
@@ -454,6 +476,61 @@ function buildSVG(state){
       });
       el.addEventListener('change', function(){ render(); scheduleSave(); });
     });
+
+    function setFetch(text, kind){ mFetch.textContent = text; mFetch.className = 'mfetch' + (kind ? ' '+kind : ''); }
+    function setValue(input, value){ input.value = String(value); input.dispatchEvent(new Event('input')); }
+
+    // Dólar blue: media entre compra y venta (dolarapi.com)
+    async function traerBlue(){
+      btnBlue.disabled = true; setFetch('Consultando dólar blue…', 'busy');
+      try{
+        const r = await fetch('https://dolarapi.com/v1/dolares/blue');
+        if(!r.ok) throw new Error('HTTP ' + r.status);
+        const d = await r.json();
+        if(!(d.compra > 0 && d.venta > 0)) throw new Error('respuesta sin valores');
+        const media = Math.round((d.compra + d.venta) / 2);
+        setValue(mBlue, media);
+        setFetch('Blue: compra ' + d.compra + ' · venta ' + d.venta + ' → media ' + media + ' (dolarapi.com)', 'ok');
+      }catch(e){
+        setFetch('No se pudo traer el blue (' + e.message + '). Cargalo a mano.', 'err');
+      }finally{ btnBlue.disabled = false; }
+    }
+
+    // Pesos por USDT al COMPRAR USDT con ARS (Binance P2P, lado BUY = menor precio primero). Promedio de las 5 primeras ofertas.
+    async function traerBinance(){
+      btnBinance.disabled = true; setFetch('Consultando Binance P2P…', 'busy');
+      try{
+        const body = { fiat:'ARS', asset:'USDT', tradeType:'BUY', page:1, rows:5, payTypes:[], publisherType:null };
+        const monto = parseARS(mMonto.value);
+        if(monto > 0) body.transAmount = String(Math.round(monto));
+        let precios;
+        try{
+          const r = await fetch('https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search', {
+            method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+          });
+          if(!r.ok) throw new Error('HTTP ' + r.status);
+          const d = await r.json();
+          precios = (d.data || []).map(function(x){ return parseFloat(x.adv && x.adv.price); }).filter(function(n){ return n > 0; });
+          if(!precios.length) throw new Error('sin ofertas para ese monto');
+        }catch(e1){
+          // Fallback: precio spot USDT/ARS (referencia; NO es P2P)
+          const r2 = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=USDTARS');
+          if(!r2.ok) throw new Error('P2P: ' + e1.message + ' · spot: HTTP ' + r2.status);
+          const d2 = await r2.json(); const sp = parseFloat(d2.price);
+          if(!(sp > 0)) throw new Error('P2P: ' + e1.message + ' · spot sin precio');
+          setValue(mArsBinance, Math.round(sp));
+          setFetch('⚠ P2P no disponible (' + e1.message + '). Cargué el precio SPOT USDT/ARS: ' + Math.round(sp) + ' — es una referencia, no el P2P.', 'err');
+          return;
+        }
+        const prom = precios.reduce(function(a,b){ return a+b; }, 0) / precios.length;
+        setValue(mArsBinance, Math.round(prom));
+        setFetch('P2P compra USDT: mejor ' + Math.min.apply(null, precios) + ' · promedio de ' + precios.length + ' ofertas = ' + Math.round(prom) + (monto > 0 ? ' (filtrado por ' + fmtARS(monto) + ')' : ''), 'ok');
+      }catch(e){
+        setFetch('No se pudo traer Binance (' + e.message + '). Cargalo a mano.', 'err');
+      }finally{ btnBinance.disabled = false; }
+    }
+    btnBlue.addEventListener('click', traerBlue);
+    btnBinance.addEventListener('click', traerBinance);
 
     function setStatus(text, kind){
       statusEl.textContent = text;
