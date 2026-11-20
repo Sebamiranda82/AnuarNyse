@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- ANUAR NYSE admin v1.7 (20/11/2026): Venta independiente del blue; el importe en ARS para filtrar ofertas usa el precio de Pesos Binance (no el blue); el cuadro muestra el ejemplo completo con el importe. v1.6: si el navegador bloquea Binance (CORS), usa /api/p2p del servidor local servidor_panel.py (abrir el panel en http://localhost:8080/admin.html). v1.5: Dolar Binance filtra por bancos (Pichincha, Internacional, Pacifico, Bolivariano) e importe a operar (rango min/max de la oferta). v1.4: + Traer en Dolar Binance (P2P fiat USD, lado SELL = vender USDT por dolares). v1.3.1: en celular la vista previa ya no queda fija encima del formulario. v1.3: + botones Traer (blue desde dolarapi.com, Pesos Binance desde P2P BUY con fallback spot). v1.2: Venta calculada = (ARS Binance / USD Binance) x (1+ganancia%). Compra se precarga con el dolar blue. Campos de mercado solo en localStorage; en data.json se publica solo rate/percent/noComision (percent = markup efectivo sobre Compra) -->
+<!-- ANUAR NYSE admin v1.8 (20/11/2026): CORRECCION: al vender USDT en Ecuador se recibe USD = USDT / DolarBinance (no multiplicar). Venta = PesosBinance x DolarBinance x (1+g). v1.7: Venta independiente del blue; el importe en ARS para filtrar ofertas usa el precio de Pesos Binance (no el blue); el cuadro muestra el ejemplo completo con el importe. v1.6: si el navegador bloquea Binance (CORS), usa /api/p2p del servidor local servidor_panel.py (abrir el panel en http://localhost:8080/admin.html). v1.5: Dolar Binance filtra por bancos (Pichincha, Internacional, Pacifico, Bolivariano) e importe a operar (rango min/max de la oferta). v1.4: + Traer en Dolar Binance (P2P fiat USD, lado SELL = vender USDT por dolares). v1.3.1: en celular la vista previa ya no queda fija encima del formulario. v1.3: + botones Traer (blue desde dolarapi.com, Pesos Binance desde P2P BUY con fallback spot). v1.2: Venta calculada = (ARS Binance / USD Binance) x (1+ganancia%). Compra se precarga con el dolar blue. Campos de mercado solo en localStorage; en data.json se publica solo rate/percent/noComision (percent = markup efectivo sobre Compra) -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -128,9 +128,9 @@
           </div>
         </div>
         <div class="field">
-          <label for="mUsdBinance">Dólar Binance (USD por USDT)</label>
+          <label for="mUsdBinance">Dólar Binance (precio de venta; USD = USDT ÷ este valor)</label>
           <div class="rowfetch">
-            <input type="text" id="mUsdBinance" inputmode="decimal" placeholder="ej: 1.025">
+            <input type="text" id="mUsdBinance" inputmode="decimal" placeholder="ej: 1.022">
             <button type="button" id="btnUsd">Traer</button>
           </div>
         </div>
@@ -377,7 +377,8 @@ function buildSVG(state){
     }
     const fmtARS = function(n){ return '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.'); };
 
-    // Venta = (Pesos Binance / Dólar Binance) x (1 + ganancia%). NO depende del blue.
+    // Costo de 1 USD recibido en Ecuador = Pesos Binance x Dólar Binance (porque USD = USDT / Dólar Binance).
+    // Venta = Pesos Binance x Dólar Binance x (1 + ganancia%). NO depende del blue.
     // El % publicado se ajusta sobre Compra solo para que la web pública (Compra x (1+%)) muestre exactamente esa Venta.
     function calcVenta(){
       const ars = parseARS(mArsBinance.value), usd = parseDec(mUsdBinance.value);
@@ -387,11 +388,11 @@ function buildSVG(state){
         mCalc.innerHTML = 'Completá Dólar Binance, Pesos Binance y Ganancia para calcular la Venta automática. Mientras tanto vale el porcentaje manual.';
         return;
       }
-      const costo = ars / usd;
+      const costo = ars * usd;
       const venta = Math.ceil(costo * (1 + g/100) - 1e-9);   // hacia arriba: nunca por debajo de la ganancia deseada
       let html = 'Costo por 1 USD Ecuador: <b>' + fmtARS(costo) + '</b><br>Venta (con ' + g + '% de ganancia): <b>' + fmtARS(venta) + '</b>';
       if(importe > 0){
-        const pesos = venta * importe, usdt = pesos / ars, recibis = usdt * usd, gan = recibis - importe;
+        const pesos = venta * importe, usdt = pesos / ars, recibis = usdt / usd, gan = recibis - importe;
         html += '<br><span style="color:#8a8a8c">Con ' + importe + ' USD: el cliente paga ' + fmtARS(pesos) + ' → comprás ' + usdt.toFixed(2) + ' USDT a ' + fmtARS(ars) +
                 ' → vendés y recibís ' + recibis.toFixed(2) + ' USD → ganancia <b>' + gan.toFixed(2) + ' USD</b> (' + (gan / importe * 100).toFixed(2) + '%)</span>';
       }
