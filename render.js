@@ -1,4 +1,4 @@
-// ANUAR NYSE — shared render logic  (v2.7 · FUENTE ÚNICA del cartel: lo cargan index.html y admin.html con <script src="render.js">)
+// ANUAR NYSE — shared render logic  (v2.8 · FUENTE ÚNICA del cartel: lo cargan index.html y admin.html con <script src="render.js">)
 
 const BANKS = [
   { name: "Pichincha",     color: "#E0A100" },
@@ -97,7 +97,7 @@ function rateBlock(compraStr, ventaStr){
 
 // Variante "solo Compra": un único precio centrado y más grande (sin Venta ni separador)
 function rateBlockSolo(compraStr){
-  return '<text x="0" y="-64" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="20" letter-spacing="6" fill="#9A7A12">COMPRA</text>' +
+  return '<text x="0" y="-64" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="20" letter-spacing="6" fill="#1F2937">COMPRAMOS A:</text>' +
     '<text x="0" y="14" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="84" fill="url(#goldFoil)">' + compraStr + '</text>';
 }
 
