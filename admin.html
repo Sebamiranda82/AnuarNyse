@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- ANUAR NYSE admin v2.4 (20/11/2026): el cartel ya no está duplicado: se carga desde render.js (fuente única, compartida con index.html). v2.3: la bandera de Ecuador lleva el escudo (version vectorial simplificada). v2.2: banderas del bloque de transferencias al doble de tamaño (radio 48). v2.1: titulo ANUAR CAMBIOS; bloque unico "Transferencias internacionales sin comision" con banderas; bancos y "Recibimos" un tamaño mas grande. v2.0: cartel con fondo blanco, "DOLAR" en verde, y linea "Ahorra en transferencia" con banderas EC y AR. v1.9: se quita la linea "1 Dolar = 1 Dolar" del cartel. v1.8: CORRECCION: al vender USDT en Ecuador se recibe USD = USDT / DolarBinance (no multiplicar). Venta = PesosBinance x DolarBinance x (1+g). v1.7: Venta independiente del blue; el importe en ARS para filtrar ofertas usa el precio de Pesos Binance (no el blue); el cuadro muestra el ejemplo completo con el importe. v1.6: si el navegador bloquea Binance (CORS), usa /api/p2p del servidor local servidor_panel.py (abrir el panel en http://localhost:8080/admin.html). v1.5: Dolar Binance filtra por bancos (Pichincha, Internacional, Pacifico, Bolivariano) e importe a operar (rango min/max de la oferta). v1.4: + Traer en Dolar Binance (P2P fiat USD, lado SELL = vender USDT por dolares). v1.3.1: en celular la vista previa ya no queda fija encima del formulario. v1.3: + botones Traer (blue desde dolarapi.com, Pesos Binance desde P2P BUY con fallback spot). v1.2: Venta calculada = (ARS Binance / USD Binance) x (1+ganancia%). Compra se precarga con el dolar blue. Campos de mercado solo en localStorage; en data.json se publica solo rate/percent/noComision (percent = markup efectivo sobre Compra) -->
+<!-- ANUAR NYSE admin v2.5 (20/11/2026): "Descargar imagenes" baja 2 PNG: completa y solo Compra (centrado y mas grande). v2.4: el cartel ya no está duplicado: se carga desde render.js (fuente única, compartida con index.html). v2.3: la bandera de Ecuador lleva el escudo (version vectorial simplificada). v2.2: banderas del bloque de transferencias al doble de tamaño (radio 48). v2.1: titulo ANUAR CAMBIOS; bloque unico "Transferencias internacionales sin comision" con banderas; bancos y "Recibimos" un tamaño mas grande. v2.0: cartel con fondo blanco, "DOLAR" en verde, y linea "Ahorra en transferencia" con banderas EC y AR. v1.9: se quita la linea "1 Dolar = 1 Dolar" del cartel. v1.8: CORRECCION: al vender USDT en Ecuador se recibe USD = USDT / DolarBinance (no multiplicar). Venta = PesosBinance x DolarBinance x (1+g). v1.7: Venta independiente del blue; el importe en ARS para filtrar ofertas usa el precio de Pesos Binance (no el blue); el cuadro muestra el ejemplo completo con el importe. v1.6: si el navegador bloquea Binance (CORS), usa /api/p2p del servidor local servidor_panel.py (abrir el panel en http://localhost:8080/admin.html). v1.5: Dolar Binance filtra por bancos (Pichincha, Internacional, Pacifico, Bolivariano) e importe a operar (rango min/max de la oferta). v1.4: + Traer en Dolar Binance (P2P fiat USD, lado SELL = vender USDT por dolares). v1.3.1: en celular la vista previa ya no queda fija encima del formulario. v1.3: + botones Traer (blue desde dolarapi.com, Pesos Binance desde P2P BUY con fallback spot). v1.2: Venta calculada = (ARS Binance / USD Binance) x (1+ganancia%). Compra se precarga con el dolar blue. Campos de mercado solo en localStorage; en data.json se publica solo rate/percent/noComision (percent = markup efectivo sobre Compra) -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -161,7 +161,7 @@
       <button id="publishBtn">Publicar cotización</button>
       <div class="status" id="status"></div>
 
-      <button id="downloadPng">Descargar imagen para Instagram</button>
+      <button id="downloadPng">Descargar imágenes para Instagram (2)</button>
       <button id="downloadJson">o descargar data.json manualmente</button>
 
       <details id="ghDetails">
@@ -202,7 +202,7 @@
     </div>
   </div>
 
-  <script src="render.js?v=2.4"></script>
+  <script src="render.js?v=2.5"></script>
 
   <script>
     if(typeof buildSVG !== 'function'){ document.getElementById('stage').textContent = 'No se pudo cargar render.js. Abrí el panel desde http://localhost:8080/admin.html o desde el dominio (no como archivo suelto).'; }
@@ -577,26 +577,38 @@
 
     publishBtn.addEventListener('click', publishToGitHub);
 
+    // Convierte un SVG (1080x1080) en un PNG y lo descarga
+    function svgAPng(svgString){
+      return new Promise(function(resolve, reject){
+        const url = URL.createObjectURL(new Blob([svgString], {type:'image/svg+xml;charset=utf-8'}));
+        const img = new Image();
+        img.onload = function(){
+          const canvas = document.createElement('canvas');
+          canvas.width = 1080; canvas.height = 1080;
+          canvas.getContext('2d').drawImage(img, 0, 0, 1080, 1080);
+          URL.revokeObjectURL(url);
+          canvas.toBlob(function(blob){ blob ? resolve(blob) : reject(new Error('no se pudo generar el PNG')); }, 'image/png');
+        };
+        img.onerror = function(){ reject(new Error('no se pudo dibujar el cartel')); };
+        img.src = url;
+      });
+    }
+    function bajarBlob(blob, nombre){
+      const link = document.createElement('a');
+      link.download = nombre; link.href = URL.createObjectURL(blob); link.click();
+      setTimeout(function(){ URL.revokeObjectURL(link.href); }, 4000);
+    }
+
+    // Descarga 2 imágenes: la completa (Compra y Venta) y otra solo con el precio de Compra
     document.getElementById('downloadPng').addEventListener('click', async function(){
-      await document.fonts.ready;
-      const svgString = buildSVG(currentState());
-      const svgBlob = new Blob([svgString], {type:'image/svg+xml;charset=utf-8'});
-      const url = URL.createObjectURL(svgBlob);
-      const img = new Image();
-      img.onload = function(){
-        const canvas = document.createElement('canvas');
-        canvas.width = 1080; canvas.height = 1080;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, 1080, 1080);
-        URL.revokeObjectURL(url);
-        canvas.toBlob(function(blob){
-          const link = document.createElement('a');
-          link.download = 'anuar-cotizacion-' + rateInput.value + '.png';
-          link.href = URL.createObjectURL(blob);
-          link.click();
-        }, 'image/png');
-      };
-      img.src = url;
+      try{
+        await document.fonts.ready;
+        const st = currentState(), precio = rateInput.value;
+        bajarBlob(await svgAPng(buildSVG(st)), 'anuar-cotizacion-' + precio + '.png');
+        await new Promise(function(r){ setTimeout(r, 700); });
+        bajarBlob(await svgAPng(buildSVG(st, { soloCompra: true })), 'anuar-compra-' + precio + '.png');
+        setStatus('Se descargaron 2 imágenes: cotización completa y solo Compra ✓', 'ok');
+      }catch(e){ setStatus('No se pudieron generar las imágenes: ' + e.message, 'err'); }
     });
 
     document.getElementById('downloadJson').addEventListener('click', function(){

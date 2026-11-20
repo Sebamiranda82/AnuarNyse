@@ -1,4 +1,4 @@
-// ANUAR NYSE — shared render logic  (v2.4 · FUENTE ÚNICA del cartel: lo cargan index.html y admin.html con <script src="render.js">)
+// ANUAR NYSE — shared render logic  (v2.5 · FUENTE ÚNICA del cartel: lo cargan index.html y admin.html con <script src="render.js">)
 
 const BANKS = [
   { name: "Pichincha",     color: "#E0A100" },
@@ -95,7 +95,15 @@ function rateBlock(compraStr, ventaStr){
     '<text x="170" y="6" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="64" fill="url(#goldFoil)">' + ventaStr + '</text>';
 }
 
-function buildSVG(state){
+// Variante "solo Compra": un único precio centrado y más grande (sin Venta ni separador)
+function rateBlockSolo(compraStr){
+  return '<text x="0" y="-64" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="20" letter-spacing="6" fill="#9A7A12">COMPRA</text>' +
+    '<text x="0" y="14" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="84" fill="url(#goldFoil)">' + compraStr + '</text>';
+}
+
+// opts.soloCompra = true → imagen con solo el precio de Compra
+function buildSVG(state, opts){
+  const soloCompra = !!(opts && opts.soloCompra);
   const pct = (state.percent === undefined || state.percent === null || state.percent === '') ? 3 : parseFloat(state.percent);
   const compraStr = formatARS(state.rate);
   const ventaNum = Math.round(parseInt(String(state.rate||'0').replace(/[^\d]/g,''),10) * (1 + pct/100));
@@ -139,7 +147,7 @@ function buildSVG(state){
   '<line x1="140" y1="240" x2="940" y2="240" stroke="url(#goldLine)" stroke-width="1"/>' +
   '<text x="540" y="264" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="27" letter-spacing="2" fill="#9A7A12">Cotización · ' + dateStr + '</text>' +
   '<text x="540" y="352" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="25" letter-spacing="4" fill="#15803D">D\u00d3LAR ECUADOR</text>' +
-  '<g transform="translate(540,432)">' + rateBlock(compraStr, ventaStr) + '</g>' +
+  '<g transform="translate(540,' + (soloCompra ? 452 : 432) + ')">' + (soloCompra ? rateBlockSolo(compraStr) : rateBlock(compraStr, ventaStr)) + '</g>' +
   flagsLine +
   '<g transform="translate(540,650)" stroke="#B8901E" stroke-width="1.5" fill="none" opacity="0.9">' +
     '<rect x="-8" y="-8" width="16" height="16" transform="rotate(45)"/>' +
