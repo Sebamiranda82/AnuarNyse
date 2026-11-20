@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- ANUAR NYSE admin v1.6 (20/11/2026): si el navegador bloquea Binance (CORS), usa /api/p2p del servidor local servidor_panel.py (abrir el panel en http://localhost:8080/admin.html). v1.5: Dolar Binance filtra por bancos (Pichincha, Internacional, Pacifico, Bolivariano) e importe a operar (rango min/max de la oferta). v1.4: + Traer en Dolar Binance (P2P fiat USD, lado SELL = vender USDT por dolares). v1.3.1: en celular la vista previa ya no queda fija encima del formulario. v1.3: + botones Traer (blue desde dolarapi.com, Pesos Binance desde P2P BUY con fallback spot). v1.2: Venta calculada = (ARS Binance / USD Binance) x (1+ganancia%). Compra se precarga con el dolar blue. Campos de mercado solo en localStorage; en data.json se publica solo rate/percent/noComision (percent = markup efectivo sobre Compra) -->
+<!-- ANUAR NYSE admin v1.7 (20/11/2026): Venta independiente del blue; el importe en ARS para filtrar ofertas usa el precio de Pesos Binance (no el blue); el cuadro muestra el ejemplo completo con el importe. v1.6: si el navegador bloquea Binance (CORS), usa /api/p2p del servidor local servidor_panel.py (abrir el panel en http://localhost:8080/admin.html). v1.5: Dolar Binance filtra por bancos (Pichincha, Internacional, Pacifico, Bolivariano) e importe a operar (rango min/max de la oferta). v1.4: + Traer en Dolar Binance (P2P fiat USD, lado SELL = vender USDT por dolares). v1.3.1: en celular la vista previa ya no queda fija encima del formulario. v1.3: + botones Traer (blue desde dolarapi.com, Pesos Binance desde P2P BUY con fallback spot). v1.2: Venta calculada = (ARS Binance / USD Binance) x (1+ganancia%). Compra se precarga con el dolar blue. Campos de mercado solo en localStorage; en data.json se publica solo rate/percent/noComision (percent = markup efectivo sobre Compra) -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -377,23 +377,33 @@ function buildSVG(state){
     }
     const fmtARS = function(n){ return '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.'); };
 
-    // Venta = (ARS Binance / USD Binance) x (1 + ganancia%). Ajusta el % publicado para que la web pública (rate x (1+%)) dé exactamente esa Venta.
+    // Venta = (Pesos Binance / Dólar Binance) x (1 + ganancia%). NO depende del blue.
+    // El % publicado se ajusta sobre Compra solo para que la web pública (Compra x (1+%)) muestre exactamente esa Venta.
     function calcVenta(){
       const ars = parseARS(mArsBinance.value), usd = parseDec(mUsdBinance.value);
-      const g = parseDec(mGain.value), compra = parseARS(rateInput.value);
-      if(!(ars > 0 && usd > 0 && g >= 0 && compra > 0)){
+      const g = parseDec(mGain.value), compra = parseARS(rateInput.value), importe = parseARS(mMonto.value);
+      if(!(ars > 0 && usd > 0 && g >= 0)){
         percentInput.readOnly = false;
         mCalc.innerHTML = 'Completá Dólar Binance, Pesos Binance y Ganancia para calcular la Venta automática. Mientras tanto vale el porcentaje manual.';
         return;
       }
       const costo = ars / usd;
       const venta = Math.ceil(costo * (1 + g/100) - 1e-9);   // hacia arriba: nunca por debajo de la ganancia deseada
-      const pct = (venta / compra - 1) * 100;
-      percentInput.value = pct.toFixed(4);
-      percentInput.readOnly = true;
-      mCalc.innerHTML = 'Costo por 1 USD Ecuador: <b>' + fmtARS(costo) + '</b><br>' +
-        'Venta (con ' + g + '% de ganancia): <b>' + fmtARS(venta) + '</b><br>' +
-        'Compra ' + fmtARS(compra) + ' → Venta: <b>+' + pct.toFixed(2) + '%</b>';
+      let html = 'Costo por 1 USD Ecuador: <b>' + fmtARS(costo) + '</b><br>Venta (con ' + g + '% de ganancia): <b>' + fmtARS(venta) + '</b>';
+      if(importe > 0){
+        const pesos = venta * importe, usdt = pesos / ars, recibis = usdt * usd, gan = recibis - importe;
+        html += '<br><span style="color:#8a8a8c">Con ' + importe + ' USD: el cliente paga ' + fmtARS(pesos) + ' → comprás ' + usdt.toFixed(2) + ' USDT a ' + fmtARS(ars) +
+                ' → vendés y recibís ' + recibis.toFixed(2) + ' USD → ganancia <b>' + gan.toFixed(2) + ' USD</b> (' + (gan / importe * 100).toFixed(2) + '%)</span>';
+      }
+      if(compra > 0){
+        const pct = (venta / compra - 1) * 100;
+        percentInput.value = pct.toFixed(4); percentInput.readOnly = true;
+        html += '<br>Compra ' + fmtARS(compra) + ' (media del blue) → Venta publicada: <b>+' + pct.toFixed(2) + '%</b> sobre Compra';
+      }else{
+        percentInput.readOnly = false;
+        html += '<br>⚠ Falta la Compra (traé el blue) para poder publicar.';
+      }
+      mCalc.innerHTML = html;
     }
 
     function currentState(){
@@ -553,17 +563,26 @@ function buildSVG(state){
       return { prom: prom, min: Math.min.apply(null, precios), max: Math.max.apply(null, precios) };
     }
 
-    // Pesos por USDT al COMPRAR USDT con ARS (P2P, lado BUY = menor precio primero). Importe en ARS = importe USD x Compra. Promedio de las 5 primeras.
+    // Pesos por USDT al COMPRAR USDT con ARS (P2P, lado BUY = menor precio primero). Promedio de las 5 primeras ofertas.
+    // El importe en ARS para filtrar = importe USD x precio de Pesos Binance (NO el blue): si el campo está vacío, primero se consulta sin filtro para estimarlo.
     async function traerBinance(){
       btnBinance.disabled = true; setFetch('Consultando Binance P2P…', 'busy');
       try{
-        const usd = parseARS(mMonto.value), compra = parseARS(rateInput.value);
-        const ars = (usd > 0 && compra > 0) ? Math.round(usd * compra) : 0;
+        const usd = parseARS(mMonto.value);
         const base = { fiat:'ARS', asset:'USDT', tradeType:'BUY', payTypes:[], publisherType:null };
-        if(ars > 0) base.transAmount = String(ars);
-        let precios;
+        let precios, ars = 0;
         try{
-          const todos = await p2pBuscar(base, 1);
+          if(usd > 0){
+            let ref = parseARS(mArsBinance.value);
+            if(!(ref > 0)){
+              const previa = await p2pBuscar(Object.assign({}, base), 1);
+              const pr = previa.map(precioAdv).filter(function(n){ return n > 0; });
+              ref = pr.length ? Math.min.apply(null, pr) : 0;
+            }
+            if(ref > 0) ars = Math.round(usd * ref);
+          }
+          const filtro = Object.assign({}, base); if(ars > 0) filtro.transAmount = String(ars);
+          const todos = await p2pBuscar(filtro, 1);
           precios = todos.filter(function(x){ return enRango(x, ars); }).map(precioAdv).filter(function(n){ return n > 0; }).slice(0,5);
           if(!precios.length) throw new Error('sin ofertas para ' + (ars > 0 ? fmtARS(ars) : 'ese importe'));
         }catch(e1){
@@ -572,12 +591,12 @@ function buildSVG(state){
           const d2 = await r2.json(); const sp = parseFloat(d2.price);
           if(!(sp > 0)) throw new Error('P2P: ' + e1.message + ' · spot sin precio');
           setValue(mArsBinance, Math.round(sp));
-          setFetch('⚠ P2P no disponible (' + e1.message + '). Cargué el precio SPOT USDT/ARS: ' + Math.round(sp) + ' — es una referencia, no el P2P.', 'err');
+          setFetch('⚠ P2P no disponible (' + e1.message + '). Cargué el precio SPOT USDT/ARS: ' + Math.round(sp) + ' — es una referencia, NO el P2P. No lo uses para publicar.', 'err');
           return;
         }
         const rs = resumen(precios);
         setValue(mArsBinance, Math.round(rs.prom));
-        setFetch('P2P compra USDT: mejor ' + rs.min + ' · promedio de ' + precios.length + ' ofertas = ' + Math.round(rs.prom) + (ars > 0 ? ' (importe ' + fmtARS(ars) + ')' : ' (sin filtro de importe)'), 'ok');
+        setFetch('P2P compra USDT: mejor ' + rs.min + ' · promedio de ' + precios.length + ' ofertas = ' + Math.round(rs.prom) + (ars > 0 ? ' (importe ' + usd + ' USD ≈ ' + fmtARS(ars) + ')' : ' (sin filtro de importe)'), 'ok');
       }catch(e){
         setFetch('No se pudo traer Binance (' + e.message + '). Cargalo a mano.', 'err');
       }finally{ btnBinance.disabled = false; }
