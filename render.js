@@ -1,4 +1,4 @@
-// ANUAR NYSE — shared render logic  (v2.8 · FUENTE ÚNICA del cartel: lo cargan index.html y admin.html con <script src="render.js">)
+// ANUAR NYSE — shared render logic  (v2.9 · FUENTE ÚNICA del cartel: lo cargan index.html y admin.html con <script src="render.js">)
 
 const BANKS = [
   { name: "Pichincha",     color: "#E0A100" },
@@ -161,7 +161,7 @@ function buildSVG(state, opts){
   '</g>' +
   '<text x="540" y="716" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="28" fill="#1F2937">En Argentina trabajamos con todos los</text>' +
   '<text x="540" y="754" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="28" fill="#1F2937">bancos y Billeteras Virtuales</text>' +
-  '<text x="540" y="820" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="27" letter-spacing="2" fill="#9A7A12">Recibimos en Ecuador en los bancos</text>' +
+  '<text x="540" y="822" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="30" letter-spacing="2" fill="#9A7A12">Recibimos en Ecuador en los bancos</text>' +
   '<g transform="translate(540,880)">' + row1 + '</g>' +
   '<g transform="translate(540,942)">' + row2 + '</g>' +
   '</svg>';
