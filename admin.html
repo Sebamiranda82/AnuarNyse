@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- ANUAR NYSE admin v1.3.1 (20/11/2026): en celular la vista previa ya no queda fija encima del formulario. v1.3: + botones Traer (blue desde dolarapi.com, Pesos Binance desde P2P BUY con fallback spot). v1.2: Venta calculada = (ARS Binance / USD Binance) x (1+ganancia%). Compra se precarga con el dolar blue. Campos de mercado solo en localStorage; en data.json se publica solo rate/percent/noComision (percent = markup efectivo sobre Compra) -->
+<!-- ANUAR NYSE admin v1.5 (20/11/2026): Dolar Binance filtra por bancos (Pichincha, Internacional, Pacifico, Bolivariano) e importe a operar (rango min/max de la oferta). v1.4: + Traer en Dolar Binance (P2P fiat USD, lado SELL = vender USDT por dolares). v1.3.1: en celular la vista previa ya no queda fija encima del formulario. v1.3: + botones Traer (blue desde dolarapi.com, Pesos Binance desde P2P BUY con fallback spot). v1.2: Venta calculada = (ARS Binance / USD Binance) x (1+ganancia%). Compra se precarga con el dolar blue. Campos de mercado solo en localStorage; en data.json se publica solo rate/percent/noComision (percent = markup efectivo sobre Compra) -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -129,7 +129,10 @@
         </div>
         <div class="field">
           <label for="mUsdBinance">Dólar Binance (USD por USDT)</label>
-          <input type="text" id="mUsdBinance" inputmode="decimal" placeholder="ej: 1.00">
+          <div class="rowfetch">
+            <input type="text" id="mUsdBinance" inputmode="decimal" placeholder="ej: 1.025">
+            <button type="button" id="btnUsd">Traer</button>
+          </div>
         </div>
         <div class="field">
           <label for="mArsBinance">Pesos Binance (ARS por USDT)</label>
@@ -139,8 +142,12 @@
           </div>
         </div>
         <div class="field">
-          <label for="mMonto">Monto de tus compras (ARS, opcional)</label>
-          <input type="text" id="mMonto" inputmode="numeric" placeholder="filtra ofertas, ej: 500000">
+          <label for="mMonto">Importe a operar (USD, opcional)</label>
+          <input type="text" id="mMonto" inputmode="numeric" placeholder="ej: 500 — solo ofertas cuyo rango lo incluya">
+        </div>
+        <div class="field">
+          <label for="mBancos">Bancos de Ecuador (filtro, separados por coma)</label>
+          <input type="text" id="mBancos" value="pichincha, internacional, pacifico, bolivariano">
         </div>
         <div class="mfetch" id="mFetch"></div>
         <div class="field">
@@ -352,9 +359,11 @@ function buildSVG(state){
     const mGain = document.getElementById('mGain');
     const mCalc = document.getElementById('mCalc');
     const mMonto = document.getElementById('mMonto');
+    const mBancos = document.getElementById('mBancos');
     const mFetch = document.getElementById('mFetch');
     const btnBlue = document.getElementById('btnBlue');
     const btnBinance = document.getElementById('btnBinance');
+    const btnUsd = document.getElementById('btnUsd');
 
     // "1.520" -> 1520 (miles con punto) ; "1520,5" -> 1520.5 ; "1.025" (USD) se lee como decimal con parseDec
     function parseARS(v){
@@ -411,7 +420,7 @@ function buildSVG(state){
             path: ghPath.value, token: ghToken.value
           }));
           localStorage.setItem('anuar-admin-mercado', JSON.stringify({
-            blue: mBlue.value, usdBinance: mUsdBinance.value, arsBinance: mArsBinance.value, gain: mGain.value, monto: mMonto.value
+            blue: mBlue.value, usdBinance: mUsdBinance.value, arsBinance: mArsBinance.value, gain: mGain.value, monto: mMonto.value, bancos: mBancos.value
           }));
         }catch(e){}
       }, 400);
@@ -449,6 +458,7 @@ function buildSVG(state){
           mArsBinance.value = m.arsBinance || '';
           mGain.value = (m.gain !== undefined && m.gain !== '') ? m.gain : '3';
           mMonto.value = m.monto || '';
+          if(m.bancos) mBancos.value = m.bancos;
         }
         const gh = localStorage.getItem('anuar-gh-config');
         if(gh){
@@ -468,7 +478,7 @@ function buildSVG(state){
       el.addEventListener('change', function(){ render(); scheduleSave(); });
     });
 
-    [mBlue, mUsdBinance, mArsBinance, mGain, mMonto].forEach(function(el){
+    [mBlue, mUsdBinance, mArsBinance, mGain, mMonto, mBancos].forEach(function(el){
       el.addEventListener('input', function(){
         if(el === mBlue){
           const b = parseARS(mBlue.value);
@@ -498,24 +508,51 @@ function buildSVG(state){
       }finally{ btnBlue.disabled = false; }
     }
 
-    // Pesos por USDT al COMPRAR USDT con ARS (Binance P2P, lado BUY = menor precio primero). Promedio de las 5 primeras ofertas.
+    const P2P_URL = 'https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search';
+    function norm(t){ return String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(); }
+    function precioAdv(x){ return parseFloat(x && x.adv && x.adv.price); }
+
+    // Trae hasta 'paginas' páginas de ofertas P2P (20 por página)
+    async function p2pBuscar(base, paginas){
+      let todos = [];
+      for(let pg = 1; pg <= paginas; pg++){
+        const body = Object.assign({}, base, { page: pg, rows: 20 });
+        const r = await fetch(P2P_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+        if(!r.ok) throw new Error('HTTP ' + r.status);
+        const d = await r.json();
+        const lista = d.data || [];
+        todos = todos.concat(lista);
+        if(lista.length < 20) break;
+      }
+      return todos;
+    }
+    // ¿el importe está dentro del rango min/max de la oferta?
+    function enRango(x, importe){
+      if(!(importe > 0)) return true;
+      const mn = parseFloat(x.adv && x.adv.minSingleTransAmount), mx = parseFloat(x.adv && x.adv.maxSingleTransAmount);
+      if(isFinite(mn) && importe < mn) return false;
+      if(isFinite(mx) && importe > mx) return false;
+      return true;
+    }
+    function resumen(precios){
+      const prom = precios.reduce(function(a,b){ return a+b; }, 0) / precios.length;
+      return { prom: prom, min: Math.min.apply(null, precios), max: Math.max.apply(null, precios) };
+    }
+
+    // Pesos por USDT al COMPRAR USDT con ARS (P2P, lado BUY = menor precio primero). Importe en ARS = importe USD x Compra. Promedio de las 5 primeras.
     async function traerBinance(){
       btnBinance.disabled = true; setFetch('Consultando Binance P2P…', 'busy');
       try{
-        const body = { fiat:'ARS', asset:'USDT', tradeType:'BUY', page:1, rows:5, payTypes:[], publisherType:null };
-        const monto = parseARS(mMonto.value);
-        if(monto > 0) body.transAmount = String(Math.round(monto));
+        const usd = parseARS(mMonto.value), compra = parseARS(rateInput.value);
+        const ars = (usd > 0 && compra > 0) ? Math.round(usd * compra) : 0;
+        const base = { fiat:'ARS', asset:'USDT', tradeType:'BUY', payTypes:[], publisherType:null };
+        if(ars > 0) base.transAmount = String(ars);
         let precios;
         try{
-          const r = await fetch('https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search', {
-            method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
-          });
-          if(!r.ok) throw new Error('HTTP ' + r.status);
-          const d = await r.json();
-          precios = (d.data || []).map(function(x){ return parseFloat(x.adv && x.adv.price); }).filter(function(n){ return n > 0; });
-          if(!precios.length) throw new Error('sin ofertas para ese monto');
+          const todos = await p2pBuscar(base, 1);
+          precios = todos.filter(function(x){ return enRango(x, ars); }).map(precioAdv).filter(function(n){ return n > 0; }).slice(0,5);
+          if(!precios.length) throw new Error('sin ofertas para ' + (ars > 0 ? fmtARS(ars) : 'ese importe'));
         }catch(e1){
-          // Fallback: precio spot USDT/ARS (referencia; NO es P2P)
           const r2 = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=USDTARS');
           if(!r2.ok) throw new Error('P2P: ' + e1.message + ' · spot: HTTP ' + r2.status);
           const d2 = await r2.json(); const sp = parseFloat(d2.price);
@@ -524,15 +561,45 @@ function buildSVG(state){
           setFetch('⚠ P2P no disponible (' + e1.message + '). Cargué el precio SPOT USDT/ARS: ' + Math.round(sp) + ' — es una referencia, no el P2P.', 'err');
           return;
         }
-        const prom = precios.reduce(function(a,b){ return a+b; }, 0) / precios.length;
-        setValue(mArsBinance, Math.round(prom));
-        setFetch('P2P compra USDT: mejor ' + Math.min.apply(null, precios) + ' · promedio de ' + precios.length + ' ofertas = ' + Math.round(prom) + (monto > 0 ? ' (filtrado por ' + fmtARS(monto) + ')' : ''), 'ok');
+        const rs = resumen(precios);
+        setValue(mArsBinance, Math.round(rs.prom));
+        setFetch('P2P compra USDT: mejor ' + rs.min + ' · promedio de ' + precios.length + ' ofertas = ' + Math.round(rs.prom) + (ars > 0 ? ' (importe ' + fmtARS(ars) + ')' : ' (sin filtro de importe)'), 'ok');
       }catch(e){
         setFetch('No se pudo traer Binance (' + e.message + '). Cargalo a mano.', 'err');
       }finally{ btnBinance.disabled = false; }
     }
-    btnBlue.addEventListener('click', traerBlue);
     btnBinance.addEventListener('click', traerBinance);
+
+    // Dólar Binance: USD por 1 USDT al VENDER USDT por dólares (P2P, fiat USD, lado SELL = mayor precio primero).
+    // Filtra por bancos de Ecuador y por rango de importe. Promedio de las 5 primeras ofertas que cumplen.
+    async function traerUsdBinance(){
+      btnUsd.disabled = true; setFetch('Consultando Binance P2P (USDT → USD)…', 'busy');
+      try{
+        const importe = parseARS(mMonto.value);
+        const bancos = mBancos.value.split(',').map(norm).map(function(t){ return t.trim(); }).filter(Boolean);
+        const base = { fiat:'USD', asset:'USDT', tradeType:'SELL', payTypes:[], publisherType:null };
+        if(importe > 0) base.transAmount = String(Math.round(importe));
+        const todos = await p2pBuscar(base, 3);
+        if(!todos.length) throw new Error('Binance no devolvió ofertas en USD');
+        const enImporte = todos.filter(function(x){ return enRango(x, importe); });
+        const validas = enImporte.filter(function(x){
+          if(!bancos.length) return true;
+          const metodos = norm(JSON.stringify((x.adv && x.adv.tradeMethods) || []));
+          return bancos.some(function(b){ return metodos.indexOf(b) !== -1; });
+        });
+        const precios = validas.map(precioAdv).filter(function(n){ return n > 0; }).slice(0,5);
+        if(!precios.length){
+          throw new Error('de ' + todos.length + ' ofertas, ' + enImporte.length + ' aceptan ' + (importe > 0 ? importe + ' USD' : 'cualquier importe') + ' y ninguna es de ' + (bancos.join('/') || 'tus bancos'));
+        }
+        const rs = resumen(precios);
+        setValue(mUsdBinance, rs.prom.toFixed(4).replace(/0+$/,'').replace(/\.$/,''));
+        setFetch('P2P venta de USDT por USD: ' + precios.length + ' ofertas (de ' + (bancos.join(', ') || 'todos los bancos') + (importe > 0 ? ', importe ' + importe + ' USD' : '') + ') · mejor ' + rs.max + ' · promedio ' + rs.prom.toFixed(4), 'ok');
+      }catch(e){
+        setFetch('No se pudo traer el Dólar Binance (' + e.message + '). Cargalo a mano.', 'err');
+      }finally{ btnUsd.disabled = false; }
+    }
+    btnUsd.addEventListener('click', traerUsdBinance);
+    btnBlue.addEventListener('click', traerBlue);
 
     function setStatus(text, kind){
       statusEl.textContent = text;
