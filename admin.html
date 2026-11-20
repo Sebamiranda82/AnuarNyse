@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- ANUAR NYSE admin v1.8 (20/11/2026): CORRECCION: al vender USDT en Ecuador se recibe USD = USDT / DolarBinance (no multiplicar). Venta = PesosBinance x DolarBinance x (1+g). v1.7: Venta independiente del blue; el importe en ARS para filtrar ofertas usa el precio de Pesos Binance (no el blue); el cuadro muestra el ejemplo completo con el importe. v1.6: si el navegador bloquea Binance (CORS), usa /api/p2p del servidor local servidor_panel.py (abrir el panel en http://localhost:8080/admin.html). v1.5: Dolar Binance filtra por bancos (Pichincha, Internacional, Pacifico, Bolivariano) e importe a operar (rango min/max de la oferta). v1.4: + Traer en Dolar Binance (P2P fiat USD, lado SELL = vender USDT por dolares). v1.3.1: en celular la vista previa ya no queda fija encima del formulario. v1.3: + botones Traer (blue desde dolarapi.com, Pesos Binance desde P2P BUY con fallback spot). v1.2: Venta calculada = (ARS Binance / USD Binance) x (1+ganancia%). Compra se precarga con el dolar blue. Campos de mercado solo en localStorage; en data.json se publica solo rate/percent/noComision (percent = markup efectivo sobre Compra) -->
+<!-- ANUAR NYSE admin v2.0 (20/11/2026): cartel con fondo blanco, "DOLAR" en verde, y linea "Ahorra en transferencia" con banderas EC y AR. v1.9: se quita la linea "1 Dolar = 1 Dolar" del cartel. v1.8: CORRECCION: al vender USDT en Ecuador se recibe USD = USDT / DolarBinance (no multiplicar). Venta = PesosBinance x DolarBinance x (1+g). v1.7: Venta independiente del blue; el importe en ARS para filtrar ofertas usa el precio de Pesos Binance (no el blue); el cuadro muestra el ejemplo completo con el importe. v1.6: si el navegador bloquea Binance (CORS), usa /api/p2p del servidor local servidor_panel.py (abrir el panel en http://localhost:8080/admin.html). v1.5: Dolar Binance filtra por bancos (Pichincha, Internacional, Pacifico, Bolivariano) e importe a operar (rango min/max de la oferta). v1.4: + Traer en Dolar Binance (P2P fiat USD, lado SELL = vender USDT por dolares). v1.3.1: en celular la vista previa ya no queda fija encima del formulario. v1.3: + botones Traer (blue desde dolarapi.com, Pesos Binance desde P2P BUY con fallback spot). v1.2: Venta calculada = (ARS Binance / USD Binance) x (1+ganancia%). Compra se precarga con el dolar blue. Campos de mercado solo en localStorage; en data.json se publica solo rate/percent/noComision (percent = markup efectivo sobre Compra) -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -206,9 +206,9 @@
 // ANUAR NYSE — shared render logic
 
 const BANKS = [
-  { name: "Pichincha",     color: "#FFC72C" },
+  { name: "Pichincha",     color: "#E0A100" },
   { name: "Guayaquil",     color: "#E6007E" },
-  { name: "Internacional", color: "#FFC72C" },
+  { name: "Internacional", color: "#E0A100" },
   { name: "Pacífico",      color: "#1565C0" },
   { name: "Bolivariano",   color: "#2FB6A6" },
 ];
@@ -241,7 +241,7 @@ function bankIcon(x, y, color){
 
 function bankChip(x, y, bank){
   return '<g transform="translate(' + x + ',' + y + ')">' + bankIcon(0,0,bank.color) +
-    '<text x="18" y="6" text-anchor="start" font-family="Poppins" font-weight="400" font-size="24" fill="#F5F1E8">' + bank.name + '</text></g>';
+    '<text x="18" y="6" text-anchor="start" font-family="Poppins" font-weight="400" font-size="24" fill="#1F2937">' + bank.name + '</text></g>';
 }
 
 const ROW1_X = [-317, -77, 133];
@@ -249,7 +249,7 @@ const ROW2_X = [-195, 35];
 
 function arFlagMini(x, y, r){
   return '<g transform="translate(' + x + ',' + y + ')">' +
-    '<circle r="' + r + '" fill="#0a0908" stroke="url(#goldFoil)" stroke-width="2"/>' +
+    '<circle r="' + r + '" fill="#FFFFFF" stroke="url(#goldFoil)" stroke-width="2"/>' +
     '<clipPath id="clipARmini"><circle r="' + (r-4) + '"/></clipPath>' +
     '<g clip-path="url(#clipARmini)">' +
     '<rect x="-' + r + '" y="-' + r + '" width="' + (r*2) + '" height="' + (r*2/3) + '" fill="#74ACDF"/>' +
@@ -261,7 +261,7 @@ function arFlagMini(x, y, r){
 
 function ecFlagMini(x, y, r){
   return '<g transform="translate(' + x + ',' + y + ')">' +
-    '<circle r="' + r + '" fill="#0a0908" stroke="url(#goldFoil)" stroke-width="2"/>' +
+    '<circle r="' + r + '" fill="#FFFFFF" stroke="url(#goldFoil)" stroke-width="2"/>' +
     '<clipPath id="clipECmini"><circle r="' + (r-4) + '"/></clipPath>' +
     '<g clip-path="url(#clipECmini)">' +
     '<rect x="-' + r + '" y="-' + r + '" width="' + (r*2) + '" height="' + r + '" fill="#FFD100"/>' +
@@ -272,10 +272,10 @@ function ecFlagMini(x, y, r){
 }
 
 function rateBlock(compraStr, ventaStr){
-  return '<text x="-170" y="-52" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="17" letter-spacing="5" fill="#C9A227">COMPRA</text>' +
+  return '<text x="-170" y="-52" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="17" letter-spacing="5" fill="#9A7A12">COMPRA</text>' +
     '<text x="-170" y="6" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="64" fill="url(#goldFoil)">' + compraStr + '</text>' +
-    '<line x1="0" y1="-52" x2="0" y2="16" stroke="#6b5f45" stroke-width="1.5"/>' +
-    '<text x="170" y="-52" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="17" letter-spacing="5" fill="#C9A227">VENTA</text>' +
+    '<line x1="0" y1="-52" x2="0" y2="16" stroke="#C8B67A" stroke-width="1.5"/>' +
+    '<text x="170" y="-52" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="17" letter-spacing="5" fill="#9A7A12">VENTA</text>' +
     '<text x="170" y="6" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="64" fill="url(#goldFoil)">' + ventaStr + '</text>';
 }
 
@@ -291,47 +291,45 @@ function buildSVG(state){
   const row2 = ROW2_X.map(function(x,i){ return bankChip(x,0,BANKS[i+3]); }).join('');
 
   const flagsLine = '<g transform="translate(540,548)">' +
-    '<text x="-93" y="9" text-anchor="end" font-family="Poppins" font-weight="500" font-size="32" fill="#F5F1E8">1 D\u00f3lar</text>' +
-    arFlagMini(-59,-3,23) +
-    '<text x="0" y="9" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="32" fill="#8a7550">=</text>' +
-    '<text x="30" y="9" text-anchor="start" font-family="Poppins" font-weight="500" font-size="32" fill="#F5F1E8">1 D\u00f3lar</text>' +
-    ecFlagMini(197,-3,23) +
+    ecFlagMini(-262,-3,23) +
+    '<text x="0" y="9" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="32" fill="' + '#15803D' + '">Ahorra en transferencia</text>' +
+    arFlagMini(262,-3,23) +
     '</g>';
 
   return '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">' +
   '<defs>' +
     '<radialGradient id="bgGlow" cx="50%" cy="38%" r="75%">' +
-      '<stop offset="0%" stop-color="#141210"/><stop offset="55%" stop-color="#0a0908"/><stop offset="100%" stop-color="#000000"/>' +
+      '<stop offset="0%" stop-color="#FFFFFF"/><stop offset="55%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#FFFFFF"/>' +
     '</radialGradient>' +
     '<linearGradient id="goldFoil" x1="0%" y1="0%" x2="100%" y2="100%">' +
-      '<stop offset="0%" stop-color="#F3D98B"/><stop offset="30%" stop-color="#C9A227"/><stop offset="55%" stop-color="#F6E3A1"/>' +
-      '<stop offset="80%" stop-color="#B8901E"/><stop offset="100%" stop-color="#E8C468"/>' +
+      '<stop offset="0%" stop-color="#C9A227"/><stop offset="30%" stop-color="#A57F12"/><stop offset="55%" stop-color="#D4B13A"/>' +
+      '<stop offset="80%" stop-color="#8F6D0B"/><stop offset="100%" stop-color="#B8901E"/>' +
     '</linearGradient>' +
     '<linearGradient id="goldLine" x1="0%" y1="0%" x2="100%" y2="0%">' +
-      '<stop offset="0%" stop-color="#8a6c1a" stop-opacity="0"/><stop offset="50%" stop-color="#E8C468"/><stop offset="100%" stop-color="#8a6c1a" stop-opacity="0"/>' +
+      '<stop offset="0%" stop-color="#8a6c1a" stop-opacity="0"/><stop offset="50%" stop-color="#B8901E"/><stop offset="100%" stop-color="#8a6c1a" stop-opacity="0"/>' +
     '</linearGradient>' +
   '</defs>' +
   '<rect width="1080" height="1080" fill="url(#bgGlow)"/>' +
-  '<rect x="66" y="66" width="948" height="948" fill="none" stroke="#B8901E" stroke-width="1.5" opacity="0.55"/>' +
-  '<rect x="78" y="78" width="924" height="924" fill="none" stroke="#E8C468" stroke-width="1" opacity="0.35"/>' +
-  '<g stroke="#E8C468" stroke-width="2" opacity="0.8">' +
+  '<rect x="66" y="66" width="948" height="948" fill="none" stroke="#B8901E" stroke-width="1.5" opacity="0.8"/>' +
+  '<rect x="78" y="78" width="924" height="924" fill="none" stroke="#C9A227" stroke-width="1" opacity="0.55"/>' +
+  '<g fill="none" stroke="#B8901E" stroke-width="2" opacity="0.9">' +
     '<path d="M66 110 L66 66 L110 66"/><path d="M970 66 L1014 66 L1014 110"/>' +
     '<path d="M1014 970 L1014 1014 L970 1014"/><path d="M110 1014 L66 1014 L66 970"/>' +
   '</g>' +
   '<text x="540" y="200" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="66" letter-spacing="8" fill="url(#goldFoil)">ANUAR</text>' +
   '<line x1="140" y1="240" x2="940" y2="240" stroke="url(#goldLine)" stroke-width="1"/>' +
-  '<text x="540" y="264" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="27" letter-spacing="2" fill="#C9A227">Cotización · ' + dateStr + '</text>' +
-  '<text x="540" y="352" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="25" letter-spacing="4" fill="#F5F1E8">D\u00d3LAR ECUADOR</text>' +
+  '<text x="540" y="264" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="27" letter-spacing="2" fill="#9A7A12">Cotización · ' + dateStr + '</text>' +
+  '<text x="540" y="352" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="25" letter-spacing="4" fill="#15803D">D\u00d3LAR ECUADOR</text>' +
   '<g transform="translate(540,432)">' + rateBlock(compraStr, ventaStr) + '</g>' +
   flagsLine +
-  (noComision ? '<text x="540" y="644" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="24" letter-spacing="9" fill="#E8C468">SIN COMISIONES</text>' : '') +
-  '<g transform="translate(540,682)" stroke="#E8C468" stroke-width="1.5" fill="none" opacity="0.85">' +
+  (noComision ? '<text x="540" y="644" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="24" letter-spacing="9" fill="#9A7A12">SIN COMISIONES</text>' : '') +
+  '<g transform="translate(540,682)" stroke="#B8901E" stroke-width="1.5" fill="none" opacity="0.9">' +
     '<rect x="-8" y="-8" width="16" height="16" transform="rotate(45)"/>' +
     '<line x1="-140" y1="0" x2="-24" y2="0"/><line x1="24" y1="0" x2="140" y2="0"/>' +
   '</g>' +
-  '<text x="540" y="742" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="28" fill="#F5F1E8">En Argentina trabajamos con todos los</text>' +
-  '<text x="540" y="780" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="28" fill="#F5F1E8">bancos y Billeteras Virtuales</text>' +
-  '<text x="540" y="832" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="23" letter-spacing="2" fill="#C9A227">Recibimos en Ecuador en los bancos</text>' +
+  '<text x="540" y="742" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="28" fill="#1F2937">En Argentina trabajamos con todos los</text>' +
+  '<text x="540" y="780" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="28" fill="#1F2937">bancos y Billeteras Virtuales</text>' +
+  '<text x="540" y="832" text-anchor="middle" font-family="Lora" font-style="italic" font-weight="500" font-size="23" letter-spacing="2" fill="#9A7A12">Recibimos en Ecuador en los bancos</text>' +
   '<g transform="translate(540,884)">' + row1 + '</g>' +
   '<g transform="translate(540,934)">' + row2 + '</g>' +
   '</svg>';
