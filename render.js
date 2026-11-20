@@ -1,4 +1,4 @@
-// ANUAR NYSE — shared render logic  (v2.5 · FUENTE ÚNICA del cartel: lo cargan index.html y admin.html con <script src="render.js">)
+// ANUAR NYSE — shared render logic  (v2.7 · FUENTE ÚNICA del cartel: lo cargan index.html y admin.html con <script src="render.js">)
 
 const BANKS = [
   { name: "Pichincha",     color: "#E0A100" },
@@ -114,14 +114,20 @@ function buildSVG(state, opts){
   const row1 = ROW1_X.map(function(x,i){ return bankChip(x,0,BANKS[i]); }).join('');
   const row2 = ROW2_X.map(function(x,i){ return bankChip(x,0,BANKS[i+3]); }).join('');
 
-  // Bloque único: banderas + "Transferencias internacionales" / "sin comisión" (la 2ª línea solo si noComision)
-  const flagY = noComision ? 12 : -4;
-  const flagsLine = '<g transform="translate(540,' + (noComision ? 548 : 566) + ')">' +
-    ecFlagMini(-350, flagY, 48) +
-    '<text x="0" y="0" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="32" fill="#1F2937">Transferencias internacionales</text>' +
-    (noComision ? '<text x="0" y="42" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="34" fill="#15803D">sin comisi\u00f3n</text>' : '') +
-    arFlagMini(350, flagY, 48) +
-    '</g>';
+  // Bloque único: "Transferencias internacionales" y debajo, en la misma línea, [bandera EC] "sin comisión" [bandera AR]
+  // (sin la leyenda "sin comisión": solo las dos banderas debajo del texto)
+  const flagsLine = noComision
+    ? '<g transform="translate(540,540)">' +
+        '<text x="0" y="0" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="32" fill="#1F2937">Transferencias internacionales</text>' +
+        ecFlagMini(-168, 48, 32) +
+        '<text x="0" y="60" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="34" fill="#15803D">sin comisi\u00f3n</text>' +
+        arFlagMini(168, 48, 32) +
+      '</g>'
+    : '<g transform="translate(540,548)">' +
+        '<text x="0" y="0" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="32" fill="#1F2937">Transferencias internacionales</text>' +
+        ecFlagMini(-44, 44, 32) +
+        arFlagMini(44, 44, 32) +
+      '</g>';
 
   return '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">' +
   '<defs>' +
